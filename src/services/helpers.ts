@@ -1,4 +1,5 @@
 import { initialForm } from "../components/pages/AddNews";
+import type { NewsItem } from "../components/pages/ManageNews";
 
 export const handleformChange = (
   e: React.ChangeEvent<
@@ -36,5 +37,45 @@ export const submitNews = async (
   } catch (error) {
     setError("Failed to submit news");
     return false;
+  }
+};
+
+//For Manage News page
+
+// Filter news based on search term
+export const filterNews = (
+  newsList: NewsItem[],
+  searchTerm: string
+): NewsItem[] => {
+  return newsList.filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+};
+
+// Handle news deletion
+export const handleDeleteNews = async (
+  id: string,
+  setNewsList: React.Dispatch<React.SetStateAction<NewsItem[]>>
+): Promise<void> => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this news?"
+  );
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/news/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (res.ok) {
+      setNewsList((prev) => prev.filter((n) => n.id !== id));
+    }
+  } catch (error) {
+    console.error("Failed to delete news:", error);
   }
 };
