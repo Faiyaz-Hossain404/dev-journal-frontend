@@ -1,33 +1,17 @@
-import { useState } from "react";
+// import { useState } from "react";
 import "./App.css";
-import Button from "./components/common/Button";
-import Card from "./components/common/Card";
-import Input from "./components/common/Input";
+// import Button from "./components/common/Button";
+// import Card from "./components/common/Card";
+// import Input from "./components/common/Input";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
+import { AuthProvider } from "./context/AuthContext";
 
-function App() {
-  const [inputVal, setInputVal] = useState("");
+export default function App() {
   return (
-    <>
-      <div>
-        <Navbar />
-        <>Hello World</>
-        <Button onClick={() => console.log("nope")}>Click Here</Button>
-        <Card>This is the card</Card>
-        <Input
-          value={inputVal}
-          onChange={(e) => {
-            // console.log(e.target.value);
-            setInputVal(e.target.value);
-          }}
-          placeholder="Type here..."
-          type="text"
-        />
-        <Sidebar />
-      </div>
-    </>
+    <AuthProvider>
+      <Navbar />
+      <Sidebar />
+    </AuthProvider>
   );
 }
-
-export default App;

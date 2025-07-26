@@ -1,30 +1,30 @@
-type InputProps = {
+type TextareaProps = {
   id?: string;
   name?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
-  type?: string;
   className?: string;
+  rows?: number;
 };
 
-export default function Input({
+export default function Textarea({
   id,
   name,
   value,
   onChange,
   placeholder,
-  type = "text",
   className,
-}: InputProps) {
+  rows = 4,
+}: TextareaProps) {
   return (
-    <input
+    <textarea
       id={id}
       name={name}
-      type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      rows={rows}
       className={className}
     />
   );
