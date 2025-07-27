@@ -3,6 +3,7 @@ type ButtonProps = {
   onClick?: () => void;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -10,9 +11,15 @@ export default function Button({
   onClick,
   className,
   type = "button",
+  disabled = false,
 }: ButtonProps) {
   return (
-    <button onClick={onClick} className={className} type={type}>
+    <button
+      onClick={onClick}
+      className={className}
+      disabled={disabled}
+      type={type}
+    >
       {children}
     </button>
   );

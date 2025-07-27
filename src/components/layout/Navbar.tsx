@@ -2,6 +2,7 @@ import { useState } from "react";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import searchIcon from "../../assets/search.png";
+// import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
@@ -13,6 +14,8 @@ export default function Navbar() {
         <span className="text-xl font-bold whitespace-nowrap">
           The Dev Journal
         </span>
+
+        {/* <NavLink to="/news/:id">Home</NavLink> */}
       </div>
 
       {/* Center: Search Bar */}

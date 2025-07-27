@@ -37,8 +37,12 @@ export default function AddNews() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await submitNews(form, setForm, setError);
+
+    console.log("Form submitted:", form);
+    setError("");
+    // await submitNews(form, setForm, setError);
   };
+
   return (
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
       <h1 className="text-2xl font-bold text-[#A8B3CF] mb-6">
