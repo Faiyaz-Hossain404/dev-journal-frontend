@@ -40,7 +40,7 @@ export default function AddNews() {
 
     console.log("Form submitted:", form);
     setError("");
-    // await submitNews(form, setForm, setError);
+    await submitNews(form, setForm, setError);
   };
 
   return (
