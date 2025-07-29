@@ -15,7 +15,7 @@ export default function Navbar() {
           The Dev Journal
         </span>
 
-        {/* <NavLink to="/news/:id">Home</NavLink> */}
+        {/* <NavLink to="/add">Home</NavLink> */}
       </div>
 
       {/* Center: Search Bar */}

@@ -151,17 +151,17 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 
 //Upvote|NewsDetails
 
-// export const upvoteNewsItem = async (id: string) => {
-//   const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${localStorage.getItem("token")}`,
-//     },
-//   });
+export const upvoteNewsItem = async (id: string) => {
+  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
 
-//   if (!res.ok) {
-//     throw new Error("Failed to upvote");
-//   }
+  if (!res.ok) {
+    throw new Error("Failed to upvote");
+  }
 
-//   return res.json();
-// };
+  return res.json();
+};

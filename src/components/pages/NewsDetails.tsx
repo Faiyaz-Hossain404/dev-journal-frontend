@@ -55,15 +55,15 @@ export default function NewsDetails() {
     }
   };
 
-  //   const handleUpvote = async () => {
-  //     try {
-  //       await upvoteNewsItem(id!);
-  //       setNews((prev) => (prev ? { ...prev, upvotes: prev.upvotes + 1 } : null));
-  //       setHasUpvoted(true);
-  //     } catch (error) {
-  //       setError(error instanceof Error ? error.message : "Failed to upvote");
-  //     }
-  //   };
+  const handleUpvote = async () => {
+    try {
+      await upvoteNewsItem(id!);
+      setNews((prev) => (prev ? { ...prev, upvotes: prev.upvotes + 1 } : null));
+      setHasUpvoted(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to upvote");
+    }
+  };
 
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
   if (!news) return <div className="text-white p-6">News not found</div>;
@@ -87,7 +87,7 @@ export default function NewsDetails() {
       </div>
 
       <div className="flex items-center gap-4 mb-8">
-        {/* <Button
+        <Button
           onClick={handleUpvote}
           className={`flex items-center gap-2 px-3 py-1 rounded ${
             hasUpvoted
@@ -97,7 +97,7 @@ export default function NewsDetails() {
           disabled={hasUpvoted}
         >
           🚀 Upvote ({news.upvotes})
-        </Button> */}
+        </Button>
         <span className="text-white">💬 Comments: {comments.length}</span>
         <a
           href={news.link}
