@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 type AuthContextType = {
   user: { name: string } | null;
   setUser: React.Dispatch<React.SetStateAction<{ name: string } | null>>;
+  logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
