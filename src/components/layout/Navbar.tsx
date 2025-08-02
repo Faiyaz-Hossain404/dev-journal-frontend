@@ -2,10 +2,20 @@ import { useState } from "react";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import searchIcon from "../../assets/search.png";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 // import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-[#0E1217] text-white flex items-center justify-between p-4 border-b border-gray-200 shadow-sm">
@@ -45,6 +55,14 @@ export default function Navbar() {
           Date
         </Button>
       </div>
+      {user && (
+        <Button
+          onClick={handleLogout}
+          className="bg-white text-black px-3 py-1 rounded"
+        >
+          Logout
+        </Button>
+      )}
     </nav>
   );
 }
