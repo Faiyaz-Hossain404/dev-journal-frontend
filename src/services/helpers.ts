@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { initialForm } from "../components/pages/AddNews";
 import type { Comment } from "../types/Comment";
 import type { NewsItem } from "../types/NewsItem";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export const handleformChange = (
   e: React.ChangeEvent<
@@ -152,7 +155,7 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
+  const res = await fetch(`http://localhost:5173/api/news/${id}/upvote`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -165,3 +168,38 @@ export const upvoteNewsItem = async (id: string) => {
 
   return res.json();
 };
+
+//Auth Service
+//login
+export function useLoginForm() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const res = await fetch("http://localhost:5173/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    if (res.ok) {
+      const { user, token } = await res.json();
+      localStorage.setItem("token", token);
+      setUser(user);
+      navigate("/");
+    } else {
+      const err = await res.json();
+      setError(err.error || "Login failed");
+    }
+  };
+  return { form, error, handleChange, handleSubmit };
+}
