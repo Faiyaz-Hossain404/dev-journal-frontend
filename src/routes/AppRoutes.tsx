@@ -3,6 +3,8 @@ import Home from "../components/pages/Home";
 import AddNews from "../components/pages/AddNews";
 import ManageNews from "../components/pages/ManageNews";
 import NewsDetails from "../components/pages/NewsDetails";
+import Login from "../components/pages/Login";
+import Register from "../components/pages/Register";
 
 export default function AppRoutes() {
   return (
@@ -11,6 +13,8 @@ export default function AppRoutes() {
       <Route path="/add" element={<AddNews />} />
       <Route path="/manage" element={<ManageNews />} />
       <Route path="/news/:id" element={<NewsDetails />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }
