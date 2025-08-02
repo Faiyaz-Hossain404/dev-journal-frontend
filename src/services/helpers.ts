@@ -203,3 +203,34 @@ export function useLoginForm() {
   };
   return { form, error, handleChange, handleSubmit };
 }
+
+//register
+export function useRegisterForm() {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const res = await fetch("http://localhost:5173/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    if (res.ok) {
+      navigate("/login");
+    } else {
+      const err = await res.json();
+      setError(err.error || "Registration failed");
+    }
+  };
+
+  return { form, error, handleChange, handleSubmit };
+}
