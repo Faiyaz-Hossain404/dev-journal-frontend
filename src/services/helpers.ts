@@ -21,7 +21,7 @@ export const submitNews = async (
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await fetch("http://localhost:5173/api/news", {
+    const res = await fetch("http://localhost:3000/api/news", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export const handleDeleteNews = async (
   );
   if (!confirmed) return;
 
-  const res = await fetch(`http://localhost:5173/api/news/${id}`, {
+  const res = await fetch(`http://localhost:3000/api/news/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ export const handleSubmit = async (
 ) => {
   e.preventDefault();
 
-  const res = await fetch(`http://localhost:5173/api/news/${form.id}`, {
+  const res = await fetch(`http://localhost:3000/api/news/${form.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export const postComment = async (
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`http://localhost:5173/api/news/${newsId}/comments`, {
+  const res = await fetch(`http://localhost:3000/api/news/${newsId}/comments`, {
     method: "POST",
     headers,
     body: JSON.stringify({ content }),
@@ -143,7 +143,7 @@ export const postComment = async (
 };
 
 export const fetchComments = async (newsId: string): Promise<Comment[]> => {
-  const res = await fetch(`http://localhost:5173/api/news/${newsId}/comments`);
+  const res = await fetch(`http://localhost:3000/api/news/${newsId}/comments`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch comments");
@@ -155,7 +155,7 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await fetch(`http://localhost:5173/api/news/${id}/upvote`, {
+  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -185,22 +185,36 @@ export function useLoginForm() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:5173/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
-      const { user, token } = await res.json();
-      localStorage.setItem("token", token);
-      setUser(user);
-      navigate("/");
-    } else {
-      const err = await res.json();
-      setError(err.error || "Login failed");
+      if (res.ok) {
+        try {
+          const { user, token } = await res.json();
+          localStorage.setItem("token", token);
+          setUser(user);
+          navigate("/");
+        } catch (jsonError) {
+          setError("Invalid server response");
+        }
+      } else {
+        const errText = await res.text();
+        try {
+          const err = JSON.parse(errText);
+          setError(err.error || "Login failed");
+        } catch {
+          setError(errText || "Login failed");
+        }
+      }
+    } catch (err) {
+      setError("Network error or server unavailable");
     }
   };
+
   return { form, error, handleChange, handleSubmit };
 }
 
@@ -218,17 +232,26 @@ export function useRegisterForm() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:5173/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
-      navigate("/login");
-    } else {
-      const err = await res.json();
-      setError(err.error || "Registration failed");
+      if (res.ok) {
+        navigate("/login");
+      } else {
+        const errText = await res.text();
+        try {
+          const err = JSON.parse(errText);
+          setError(err.error || "Registration failed");
+        } catch {
+          setError(errText || "Registration failed");
+        }
+      }
+    } catch (err) {
+      setError("Network error or server unavailable");
     }
   };
 

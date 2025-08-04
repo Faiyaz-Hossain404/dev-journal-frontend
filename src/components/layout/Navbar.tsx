@@ -3,7 +3,7 @@ import Input from "../common/Input";
 import Button from "../common/Button";
 import searchIcon from "../../assets/search.png";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // import { NavLink } from "react-router-dom";
 
@@ -20,12 +20,29 @@ export default function Navbar() {
   return (
     <nav className="bg-[#0E1217] text-white flex items-center justify-between p-4 border-b border-gray-200 shadow-sm">
       {/* Left: Logo */}
-      <div className="flex items-center gap-4 min-w-max">
+      <div className="flex items-center gap-6 min-w-max">
         <span className="text-xl font-bold whitespace-nowrap">
           The Dev Journal
         </span>
 
-        {/* <NavLink to="/add">Home</NavLink> */}
+        {/* ✅ Navigation links to main pages */}
+        <Link to="/" className="text-sm text-[#A8B3CF] hover:underline">
+          Home
+        </Link>
+
+        {user && (
+          <>
+            <Link to="/add" className="text-sm text-[#A8B3CF] hover:underline">
+              Add News
+            </Link>
+            <Link
+              to="/manage"
+              className="text-sm text-[#A8B3CF] hover:underline"
+            >
+              Manage News
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Center: Search Bar */}
@@ -43,26 +60,32 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: Filter Buttons */}
-      <div className="flex items-center gap-2 min-w-max">
-        <Button className="px-4 py-2 text-sm font-medium cursor-pointer text-[#A8B3CF]">
-          Category
-        </Button>
-        <Button className="px-4 py-2 text-sm font-medium cursor-pointer text-[#A8B3CF]">
-          Publisher
-        </Button>
-        <Button className="px-4 py-2 text-sm font-medium cursor-pointer text-[#A8B3CF]">
-          Date
-        </Button>
+      {/* Right: Auth controls */}
+      <div className="ml-4 flex items-center gap-2 min-w-max">
+        {user ? (
+          <Button
+            onClick={handleLogout}
+            className="bg-white text-black px-3 py-1 rounded"
+          >
+            Logout
+          </Button>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              className="text-sm text-[#A8B3CF] px-3 py-1 hover:underline"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="text-sm text-[#A8B3CF] px-3 py-1 hover:underline"
+            >
+              Register
+            </Link>
+          </>
+        )}
       </div>
-      {user && (
-        <Button
-          onClick={handleLogout}
-          className="bg-white text-black px-3 py-1 rounded"
-        >
-          Logout
-        </Button>
-      )}
     </nav>
   );
 }
