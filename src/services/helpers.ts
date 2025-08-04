@@ -44,6 +44,26 @@ export const submitNews = async (
   }
 };
 
+//For pic upload
+export const uploadImage = async (file: File, token: string) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch("http://localhost:3000/api/upload/image", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || "Image upload failed");
+  }
+  return await res.json();
+};
+
 //For Manage News page
 // Filter news based on search term
 export const filterNews = (newsList: NewsItem[], searchTerm: string) => {
