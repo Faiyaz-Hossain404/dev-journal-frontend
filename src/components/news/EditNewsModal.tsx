@@ -3,7 +3,11 @@ import Input from "../common/Input";
 import Textarea from "../common/Textarea";
 import Select from "../common/Select";
 import Button from "../common/Button";
-import { handleChange, handleSubmit } from "../../services/helpers";
+import {
+  handleChange,
+  handleFileUpload,
+  handleSubmit,
+} from "../../services/helpers";
 import type { NewsItem } from "../../types/NewsItem";
 
 type Props = {
@@ -22,6 +26,7 @@ const categoryOptions = [
 export default function EditNewsModal({ news, onClose, onUpdate }: Props) {
   const [form, setForm] = useState<NewsItem>(news);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -48,13 +53,25 @@ export default function EditNewsModal({ news, onClose, onUpdate }: Props) {
             className="w-full p-2 rounded-md bg-zinc-800 border border-zinc-700 text-white"
           />
 
-          <Input
-            name="imageUrl"
-            value={form.imageUrl}
-            onChange={(e) => handleChange(setForm, e)}
-            placeholder="Image URL"
-            className="w-full p-2 rounded-md bg-zinc-800 border border-zinc-700 text-white"
-          />
+          <div>
+            <label className="block text-sm text-[#A8B3CF] mb-1">Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                handleFileUpload(e, setForm, setUploading, setError)
+              }
+              className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-md file:bg-white file:text-black"
+            />
+            {uploading && <p className="text-gray-400 text-sm">Uploading...</p>}
+            {form.imageUrl && (
+              <img
+                src={form.imageUrl}
+                alt="Preview"
+                className="w-32 mt-2 rounded"
+              />
+            )}
+          </div>
 
           <Input
             name="link"

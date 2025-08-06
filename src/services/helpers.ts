@@ -47,9 +47,9 @@ export const submitNews = async (
 };
 
 // For pic upload
-export const handleFileUpload = async (
+export const handleFileUpload = async <T extends { imageUrl: string }>(
   e: React.ChangeEvent<HTMLInputElement>,
-  setForm: React.Dispatch<React.SetStateAction<FormType>>,
+  setForm: React.Dispatch<React.SetStateAction<T>>,
   setUploading: React.Dispatch<React.SetStateAction<boolean>>,
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
