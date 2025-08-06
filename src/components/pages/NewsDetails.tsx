@@ -19,6 +19,7 @@ export default function NewsDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasUpvoted, setHasUpvoted] = useState(false);
 
+  //Fetching news details and comments from backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,6 +39,31 @@ export default function NewsDetails() {
     };
 
     fetchData();
+  }, [id]);
+
+  //Fetching upvote stat
+  useEffect(() => {
+    const checkUserUpvoted = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(
+          `http://localhost:3000/api/news/${id}/upvotes`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setHasUpvoted(data.hasUpvoted);
+        }
+      } catch {}
+    };
+    checkUserUpvoted();
   }, [id]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
