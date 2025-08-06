@@ -7,9 +7,9 @@ import { handleChange, handleSubmit } from "../../services/helpers";
 import type { NewsItem } from "../../types/NewsItem";
 
 type Props = {
-  news: any;
+  news: NewsItem;
   onClose: () => void;
-  onUpdate: (updated: any) => void;
+  onUpdate: (updated: NewsItem) => void;
 };
 
 const categoryOptions = [

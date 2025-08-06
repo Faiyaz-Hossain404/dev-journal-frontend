@@ -11,7 +11,7 @@ export default function ManageNews() {
 
   useEffect(() => {
     const fetchUserNews = async () => {
-      const res = await fetch("http://localhost:5173/api/news/my-news", {
+      const res = await fetch("http://localhost:3000/api/news/my-news", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -72,6 +72,13 @@ export default function ManageNews() {
               key={news.id}
               className="bg-zinc-900 p-4 rounded-md border border-zinc-700 shadow-md space-y-2"
             >
+              {news.imageUrl && (
+                <img
+                  src={news.imageUrl}
+                  alt={news.title}
+                  className="w-24 h-24 object-cover rounded-md"
+                />
+              )}
               <h2 className="text-lg font-semibold text-[#A8B3CF]">
                 {news.title}
               </h2>
