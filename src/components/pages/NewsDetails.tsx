@@ -24,7 +24,7 @@ export default function NewsDetails() {
       try {
         setIsLoading(true);
 
-        const newsRes = await fetch(`http://localhost:5173/api/news/${id}`);
+        const newsRes = await fetch(`http://localhost:3000/api/news/${id}`);
         if (!newsRes.ok) throw new Error("Failed to fetch news");
         setNews(await newsRes.json());
 
@@ -128,18 +128,22 @@ export default function NewsDetails() {
         </form>
 
         <div className="mt-6 space-y-4">
-          {comments.map((c) => (
-            <div
-              key={c.id}
-              className="bg-zinc-900 border border-zinc-700 p-3 rounded"
-            >
-              <p className="text-sm text-white">{c.content}</p>
-              <div className="text-xs text-gray-500 mt-1">
-                {c.user?.name || "Anonymous"} •{" "}
-                {new Date(c.createdAt).toLocaleString()}
+          {comments.length === 0 ? (
+            <p className="text-gray-400 text-sm">No comments yet!</p>
+          ) : (
+            comments.map((c) => (
+              <div
+                key={c.id}
+                className="bg-zinc-900 border border-zinc-700 p-3 rounded"
+              >
+                <p className="text-sm text-white">{c.content}</p>
+                <div className="text-xs text-gray-500 mt-1">
+                  {c.user?.name || "Anonymous"} •{" "}
+                  {new Date(c.createdAt).toLocaleString()}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
