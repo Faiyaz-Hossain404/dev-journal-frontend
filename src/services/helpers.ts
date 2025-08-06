@@ -82,13 +82,13 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
 
 //For Manage News page
 // Filter news based on search term
-export const filterNews = (newsList: NewsItem[], searchTerm: string) => {
-  return newsList.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-};
+// export const filterNews = (newsList: NewsItem[], searchTerm: string) => {
+//   return newsList.filter(
+//     (item) =>
+//       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       item.category.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+// };
 
 // Handle news deletion
 export const handleDeleteNews = async (

@@ -3,6 +3,7 @@ import Input from "../common/Input";
 import Button from "../common/Button";
 import EditNewsModal from "../news/EditNewsModal";
 import type { NewsItem } from "../../types/NewsItem";
+import { handleDeleteNews } from "../../services/helpers";
 
 export default function ManageNews() {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
@@ -23,22 +24,9 @@ export default function ManageNews() {
     fetchUserNews();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this news?"
-    );
-    if (!confirmed) return;
-
-    const res = await fetch(`http://localhost:3000/api/news/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    if (res.ok) {
-      setNewsList((prev) => prev.filter((n) => n.id !== id));
-    }
+  const handleDelete = (id: number) => {
+    const token = localStorage.getItem("token") || "";
+    handleDeleteNews(id, token, setNewsList);
   };
 
   const filteredNews = newsList.filter(
