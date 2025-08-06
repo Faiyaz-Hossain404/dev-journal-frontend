@@ -29,7 +29,7 @@ export default function ManageNews() {
     );
     if (!confirmed) return;
 
-    const res = await fetch(`http://localhost:5173/api/news/${id}`, {
+    const res = await fetch(`http://localhost:3000/api/news/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
