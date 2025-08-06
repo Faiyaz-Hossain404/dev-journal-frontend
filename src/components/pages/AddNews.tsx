@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { handleformChange, submitNews } from "../../services/helpers";
+import {
+  handleFileUpload,
+  handleformChange,
+  submitNews,
+} from "../../services/helpers";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import Textarea from "../common/Textarea";
@@ -17,6 +21,7 @@ const categoryOptions = [
 export default function AddNews() {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -54,16 +59,32 @@ export default function AddNews() {
               value={form.description}
               onChange={handleChange}
               placeholder="Write a short description"
-              className="w-full p-2 rounded-md bg-gray-800 text-white placeholder-[#A8B3CF]  overflow-auto hide-scrollbar"
+              className="w-full p-2 rounded-md bg-gray-800 text-white placeholder-[#A8B3CF] overflow-auto hide-scrollbar"
             />
 
-            <Input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="Thumbnail image URL"
-              className="w-full p-2 rounded-md bg-gray-800 text-white placeholder-[#A8B3CF]"
-            />
+            <div>
+              <label className="block text-sm text-[#A8B3CF] mb-1">
+                Upload Thumbnail
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  handleFileUpload(e, setForm, setUploading, setError)
+                }
+                className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-md file:bg-white file:text-black"
+              />
+              {uploading && (
+                <p className="text-gray-400 text-sm mt-1">Uploading...</p>
+              )}
+              {form.imageUrl && (
+                <img
+                  src={form.imageUrl}
+                  alt="Preview"
+                  className="w-32 mt-2 rounded"
+                />
+              )}
+            </div>
 
             <Input
               name="link"
@@ -99,6 +120,7 @@ export default function AddNews() {
             />
 
             {error && <p className="text-red-400">{error}</p>}
+
             <div className="flex justify-end">
               <Button
                 type="submit"
