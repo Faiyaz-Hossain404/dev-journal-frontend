@@ -4,16 +4,7 @@ import Input from "../common/Input";
 import Button from "../common/Button";
 import Textarea from "../common/Textarea";
 import Select from "../common/Select";
-
-export const initialForm = {
-  title: "",
-  description: "",
-  imageUrl: "",
-  link: "",
-  releaseDate: "",
-  publisher: "",
-  category: "",
-};
+import { initialForm } from "../../types/FormType";
 
 const categoryOptions = [
   { label: "Technology", value: "technology" },

@@ -1,23 +1,25 @@
 import { useState } from "react";
-import { initialForm } from "../components/pages/AddNews";
 import type { Comment } from "../types/Comment";
 import type { NewsItem } from "../types/NewsItem";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import type { FormType } from "../types/FormType";
+import { initialForm } from "../types/FormType";
 
+//For AddNews
 export const handleformChange = (
   e: React.ChangeEvent<
     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
   >,
-  setForm: React.Dispatch<React.SetStateAction<typeof initialForm>>
+  setForm: React.Dispatch<React.SetStateAction<FormType>>
 ) => {
   const { name, value } = e.target;
   setForm((prev) => ({ ...prev, [name]: value }));
 };
 
 export const submitNews = async (
-  form: typeof initialForm,
-  setForm: React.Dispatch<React.SetStateAction<typeof initialForm>>,
+  form: FormType,
+  setForm: React.Dispatch<React.SetStateAction<FormType>>,
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
@@ -44,24 +46,38 @@ export const submitNews = async (
   }
 };
 
-//For pic upload
-export const uploadImage = async (file: File, token: string) => {
+// For pic upload
+export const handleFileUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>,
+  setForm: React.Dispatch<React.SetStateAction<FormType>>,
+  setUploading: React.Dispatch<React.SetStateAction<boolean>>,
+  setError: React.Dispatch<React.SetStateAction<string>>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
   const formData = new FormData();
   formData.append("image", file);
+  setUploading(true);
 
-  const res = await fetch("http://localhost:3000/api/upload/image", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
+  try {
+    const res = await fetch("http://localhost:3000/api/upload/image", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Image upload failed");
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Upload failed");
+
+    setForm((prev) => ({ ...prev, imageUrl: data.imageUrl }));
+  } catch (err) {
+    setError("Image upload failed");
+  } finally {
+    setUploading(false);
   }
-  return await res.json();
 };
 
 //For Manage News page
