@@ -191,7 +191,7 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
+  const res = await fetch(`http://localhost:3000/api/news/upvotes/${id}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -204,6 +204,8 @@ export const upvoteNewsItem = async (id: string) => {
 
   return res.json();
 };
+
+//Downvote/NewsDetails
 
 //Auth Service
 //login

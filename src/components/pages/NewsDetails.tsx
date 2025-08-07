@@ -18,6 +18,7 @@ export default function NewsDetails() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [hasDownvoted, setHasDownvoted] = useState(false);
 
   //Fetching news details and comments from backend
   useEffect(() => {
@@ -64,6 +65,30 @@ export default function NewsDetails() {
       } catch {}
     };
     checkUserUpvoted();
+  }, [id]);
+
+  //Fetching downvote stat
+  useEffect(() => {
+    const checkUserDownvoted = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(
+          `http://localhost:3000/api/news/${id}/downvotes`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setHasDownvoted(data.hasDownvoted);
+        }
+      } catch {}
+    };
+    checkUserDownvoted();
   }, [id]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
