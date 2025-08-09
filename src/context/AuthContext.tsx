@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { apiFetch } from "../services/helpers";
 
 type User = { id: string; name: string; email: string } | null;
 
 type AuthContextType = {
-  user: { name: string } | null;
+  user: User;
   setUser: React.Dispatch<React.SetStateAction<{ name: string } | null>>;
   logout: () => void;
 };
@@ -17,20 +18,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    fetch("http://localhost:3000/api/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Invalid token");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => {
-        localStorage.removeItem("token");
+    (async () => {
+      try {
+        const res = await apiFetch("/api/auth/me", { auth: true });
+        const data = await res.json();
+        setUser(data.user);
+      } catch {
         setUser(null);
-      });
+      }
+    })();
   }, []);
 
   const logout = () => {
