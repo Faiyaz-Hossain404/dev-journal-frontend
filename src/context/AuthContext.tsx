@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { apiFetch } from "../services/helpers";
+import { apiFetch } from "../services/api";
 
 type User = { id: string; name: string; email: string } | null;
 
