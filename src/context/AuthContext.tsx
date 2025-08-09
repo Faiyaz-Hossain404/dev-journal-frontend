@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+type User = { id: string; name: string; email: string } | null;
+
 type AuthContextType = {
   user: { name: string } | null;
   setUser: React.Dispatch<React.SetStateAction<{ name: string } | null>>;
