@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { FormType } from "../types/FormType";
 import { initialForm } from "../types/FormType";
+import { apiFetch } from "./api";
 
 //For AddNews
 export const handleformChange = (
@@ -23,11 +24,10 @@ export const submitNews = async (
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await fetch("http://localhost:3000/api/news", {
+    const res = await apiFetch("/api/news", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(form),
     });
@@ -61,11 +61,8 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
   setUploading(true);
 
   try {
-    const res = await fetch("http://localhost:3000/api/upload/image", {
+    const res = await apiFetch("/api/upload/image", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
       body: formData,
     });
 
@@ -93,7 +90,7 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
 // Handle news deletion
 export const handleDeleteNews = async (
   id: number,
-  token: string,
+  _token: string,
   setNewsList: React.Dispatch<React.SetStateAction<NewsItem[]>>
 ) => {
   const confirmed = window.confirm(
@@ -101,11 +98,8 @@ export const handleDeleteNews = async (
   );
   if (!confirmed) return;
 
-  const res = await fetch(`http://localhost:3000/api/news/${id}`, {
+  const res = await apiFetch(`/api/news/${id}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   if (res.ok) {
@@ -133,11 +127,10 @@ export const handleSubmit = async (
 ) => {
   e.preventDefault();
 
-  const res = await fetch(`http://localhost:3000/api/news/${form.id}`, {
+  const res = await apiFetch(`/api/news/${form.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify(form),
   });
