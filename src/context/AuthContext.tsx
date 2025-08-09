@@ -5,7 +5,7 @@ type User = { id: string; name: string; email: string } | null;
 
 type AuthContextType = {
   user: User;
-  setUser: React.Dispatch<React.SetStateAction<{ name: string } | null>>;
+  setUser: React.Dispatch<React.SetStateAction<User>>;
   logout: () => void;
 };
 
@@ -29,9 +29,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
+  useEffect(() => {
+    const onLogout = () => setUser(null);
+    window.addEventListener("auth:logout", onLogout);
+    return () => window.removeEventListener("auth:logout", onLogout);
+  }, []);
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    window.dispatchEvent(new Event("auth:logout"));
   };
 
   return (
