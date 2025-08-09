@@ -156,19 +156,24 @@ export const postComment = async (
   };
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    const res = await apiFetch(`/api/news/${newsId}/comments`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to post comment");
+    }
+    return await res.json();
   }
 
   const res = await fetch(`http://localhost:3000/api/news/${newsId}/comments`, {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content }),
   });
-  if (!res.ok) {
-    throw new Error("Failed to post comment");
-  }
-
-  return await res.json();
+  if (!res.ok) throw new Error("Failed to post comment");
+  return res.json();
 };
 
 export const fetchComments = async (newsId: string): Promise<Comment[]> => {
@@ -177,24 +182,19 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
   if (!res.ok) {
     throw new Error("Failed to fetch comments");
   }
-
   return await res.json();
 };
 
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
+  const res = await apiFetch(`/api/news/${id}/upvote`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
   });
 
   if (!res.ok) {
     throw new Error("Failed to upvote");
   }
-
   return res.json();
 };
 
@@ -206,11 +206,8 @@ export const handleDownvoteNewsItem = async (
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await fetch(`httpe://localhost:3000/api/news/${id}/downvote`, {
+    const res = await apiFetch(`/api/news/${id}/downvote`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
     });
 
     if (!res.ok) {
