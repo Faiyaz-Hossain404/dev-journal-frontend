@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   fetchComments,
+  handleDownvoteNewsItem,
   postComment,
   upvoteNewsItem,
 } from "../../services/helpers";
@@ -82,6 +83,7 @@ export default function NewsDetails() {
             },
           }
         );
+
         if (res.ok) {
           const data = await res.json();
           setHasDownvoted(data.hasDownvoted);
@@ -116,6 +118,11 @@ export default function NewsDetails() {
     }
   };
 
+  const handleDownvote = () => {
+    if (!id) return;
+    handleDownvoteNewsItem(id, setNews, setHasDownvoted, setError);
+  };
+
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
   if (!news) return <div className="text-white p-6">News not found</div>;
 
@@ -148,6 +155,17 @@ export default function NewsDetails() {
           disabled={hasUpvoted}
         >
           🚀 Upvote ({news.upvotes})
+        </Button>
+        <Button
+          onClick={handleDownvote}
+          className={`flex items-center gap-2 px-3 py-1 rounded ${
+            hasUpvoted
+              ? "bg-red-600 text-white"
+              : "bg-white text-black hover:bg-gray-100"
+          }`}
+          disabled={hasDownvoted}
+        >
+          👎 Downvote ({news.downvotes || 0})
         </Button>
         <span className="text-white">💬 Comments: {comments.length}</span>
         <a

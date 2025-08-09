@@ -8,4 +8,5 @@ export type NewsItem = {
   publisher: string;
   releaseDate: string;
   upvotes: number;
+  downvotes: number;
 };

@@ -191,7 +191,7 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await fetch(`http://localhost:3000/api/news/upvotes/${id}`, {
+  const res = await fetch(`http://localhost:3000/api/news/${id}/upvote`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -206,6 +206,33 @@ export const upvoteNewsItem = async (id: string) => {
 };
 
 //Downvote/NewsDetails
+export const handleDownvoteNewsItem = async (
+  id: string,
+  setNews: React.Dispatch<React.SetStateAction<NewsItem | null>>,
+  setHasDownvoted: React.Dispatch<React.SetStateAction<boolean>>,
+  setError: React.Dispatch<React.SetStateAction<string>>
+) => {
+  try {
+    const res = await fetch(`httpe://localhost:3000/api/news/${id}/downvote`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      setError(err.error || "Failed to downvote");
+      return;
+    }
+
+    const data = await res.json();
+    setNews((prev) => (prev ? { ...prev, downvotes: data.downvotes } : null));
+    setHasDownvoted(data.created);
+  } catch (err) {
+    setError("Failed to downvote");
+  }
+};
 
 //Auth Service
 //login
@@ -294,4 +321,31 @@ export function useRegisterForm() {
   };
 
   return { form, error, handleChange, handleSubmit };
+}
+
+//Standardizes HTTP request
+const BASE_URL = "http://localhost:3000"; //Later use this in the rest helpers above
+
+type Options = RequestInit & { auth?: boolean };
+
+export async function apiFetch(path: string, options: Options = {}) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  const token = localStorage.getItem("token");
+  if ((options.auth ?? true) && token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  if (res.status === 401) {
+    localStorage.removeItem("token");
+    window.dispatchEvent(new Event("auth:logout"));
+    throw new Error("Unauthorized");
+  }
+
+  return res;
 }
