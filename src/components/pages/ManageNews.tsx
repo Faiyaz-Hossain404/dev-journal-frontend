@@ -1,45 +1,68 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import EditNewsModal from "../news/EditNewsModal";
 import type { NewsItem } from "../../types/NewsItem";
 import { handleDeleteNews } from "../../services/helpers";
+import { apiFetch } from "../../services/api";
+import { useNavigate } from "react-router-dom";
+
+type TabKey = "all" | "mine";
 
 export default function ManageNews() {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editing, setEditing] = useState<NewsItem | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabKey>("mine");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserNews = async () => {
-      const res = await fetch("http://localhost:3000/api/news/my-news", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-      setNewsList(data);
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        if (activeTab === "mine") {
+          const res = await apiFetch("/api/news/my-news");
+          const data = await res.json();
+          setNewsList(data);
+        } else {
+          const res = await fetch("http://localhost:3000/api/news");
+          const data = await res.json();
+          setNewsList(data);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchNews();
+  }, [activeTab]);
 
-    fetchUserNews();
-  }, []);
-
-  const handleDelete = (id: number) => {
+  const onDelete = (id: number) => {
     const token = localStorage.getItem("token") || "";
     handleDeleteNews(id, token, setNewsList);
   };
 
-  const filteredNews = newsList.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase())
+  // const filteredNews = newsList.filter(
+  //   (item) =>
+  //     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     item.category.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+
+  const filteredNews = useMemo(
+    () =>
+      newsList.filter(
+        (item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.category.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [newsList, searchTerm]
   );
+
+  const openDetails = (id: number) => navigate(`/news/${id}`);
 
   return (
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
-      <h1 className="text-2xl font-bold text-[#A8B3CF] mb-6">
-        🛠 Manage Your News
-      </h1>
+      <h1 className="text-2xl font-bold text-[#A8B3CF] mb-6">🛠 Manage News</h1>
 
       <div className="max-w-md mb-6">
         <Input
@@ -85,7 +108,7 @@ export default function ManageNews() {
                 </Button>
                 <Button
                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                  onClick={() => handleDelete(news.id)}
+                  onClick={() => onDelete(news.id)}
                 >
                   Delete
                 </Button>
