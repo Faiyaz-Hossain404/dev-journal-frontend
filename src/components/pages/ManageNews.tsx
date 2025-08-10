@@ -64,6 +64,26 @@ export default function ManageNews() {
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
       <h1 className="text-2xl font-bold text-[#A8B3CF] mb-6">🛠 Manage News</h1>
 
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          onClick={() => setActiveTab("mine")}
+          className={`px-3 py-1 rounded-2xl ${
+            activeTab === "mine" ? "bg-white text-black" : "text-[#A8B3CF]"
+          }`}
+        >
+          My News
+        </Button>
+        <Button
+          onClick={() => setActiveTab("all")}
+          className={`px-3 py-1 rounded-2xl ${
+            activeTab === "all" ? "bg-white text-black" : "text-[#A8B3CF]"
+          }`}
+        >
+          All News
+        </Button>
+      </div>
+
       <div className="max-w-md mb-6">
         <Input
           name="search"
