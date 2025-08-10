@@ -1,3 +1,5 @@
+import { apiFetch } from "./api";
+
 type News = {
   id: number;
   title: string;
@@ -9,11 +11,22 @@ type News = {
 
 export async function fetchNews(): Promise<News[]> {
   try {
-    const res = await fetch("http://localhost:5173/api/news");
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const res = await apiFetch("/api/news", { auth: false });
+
+    // If server somehow returns HTML (e.g., SPA index.html), bail out safely
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      console.error("Unexpected content-type:", contentType);
+      return [];
+    }
+
+    if (!res.ok) {
+      console.error("HTTP error:", res.status);
+      return [];
+    }
 
     const data = await res.json();
-    return Array.isArray(data) ? data : data.data;
+    return Array.isArray(data) ? data : data.data ?? [];
   } catch (error) {
     console.error("Failed to fetch news:", error);
     return [];
