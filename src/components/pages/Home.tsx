@@ -32,6 +32,18 @@ export default function Home() {
     // fetchNews().then(setNewsList);
   }, []);
 
+  if (loading) {
+    return <div className="min-h-screen bg-[#0E1217] text-white p-6"></div>;
+  }
+
+  if (newsList.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0E1217] text-white p-6">
+        <p className="text-gray-400">No news yet...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0E1217] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
       {newsList.map((news) => (
