@@ -89,46 +89,64 @@ export default function ManageNews() {
           name="search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by title or category..."
+          placeholder={`Search ${
+            activeTab === "mine" ? "your" : "all"
+          } news by title or category...`}
           className="w-full p-2 rounded-md bg-zinc-900 border border-zinc-700 text-white"
         />
       </div>
 
-      {filteredNews.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-400">Loading...</p>
+      ) : filteredNews.length === 0 ? (
         <p className="text-gray-400">No news found.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredNews.map((news) => (
             <div
               key={news.id}
-              className="bg-zinc-900 p-4 rounded-md border border-zinc-700 shadow-md space-y-2"
+              role="button"
+              tabIndex={0}
+              onClick={() => openDetails(news.id)}
+              onKeyDown={(e) => e.key === "Enter" && openDetails(news.id)}
+              className="bg-zinc-900 p-4 rounded-md border border-zinc-700 shadow-md space-y-2 cursor-pointer hover:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500"
             >
               {news.imageUrl && (
                 <img
                   src={news.imageUrl}
                   alt={news.title}
-                  className="w-24 h-24 object-cover rounded-md"
+                  className="w-full h-40 object-cover rounded-md"
                 />
               )}
-              <h2 className="text-lg font-semibold text-[#A8B3CF]">
+
+              <h2 className="text-lg font-semibold text-[#A8B3CF] line-clamp-2">
                 {news.title}
               </h2>
-              <p className="text-sm text-gray-400">{news.description}</p>
+              <p className="text-sm text-gray-400 line-clamp-3">
+                {news.description}
+              </p>
               <div className="text-xs text-gray-500">
                 <span>
                   {news.publisher} • {news.category} • {news.releaseDate}
                 </span>
               </div>
+
               <div className="flex gap-4 mt-2">
                 <Button
                   className="bg-white text-black px-3 py-1 rounded hover:bg-gray-100"
-                  onClick={() => setEditing(news)}
+                  onClick={(e) => {
+                    e.stopPropagation(); //prevent navigation
+                    setEditing(news);
+                  }}
                 >
                   Edit
                 </Button>
                 <Button
                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                  onClick={() => onDelete(news.id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); //prevent navigation
+                    onDelete(news.id);
+                  }}
                 >
                   Delete
                 </Button>
