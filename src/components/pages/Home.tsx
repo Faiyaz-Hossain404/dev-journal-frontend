@@ -14,9 +14,22 @@ type News = {
 
 export default function Home() {
   const [newsList, setNewsList] = useState<News[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchNews().then(setNewsList);
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      const data = await fetchNews();
+      if (alive) {
+        setNewsList(data);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+    // fetchNews().then(setNewsList);
   }, []);
 
   return (

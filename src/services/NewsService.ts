@@ -1,6 +1,6 @@
 import { apiFetch } from "./api";
 
-type News = {
+export type News = {
   id: number;
   title: string;
   publisher: string;
