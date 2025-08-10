@@ -47,9 +47,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0E1217] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
       {newsList.map((news) => (
-        <Link to={`/news/${news.id}`}>
+        <Link
+          key={news.id}
+          to={`/news/${news.id}`}
+          aria-label={`Open ${news.title}`}
+        >
           <NewsCard
-            key={news.id}
             title={news.title}
             publisher={news.publisher}
             releaseDate={news.releaseDate}
