@@ -206,7 +206,7 @@ export const handleDownvoteNewsItem = async (
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await apiFetch(`/api/news/${id}/downvote`, {
+    const res = await apiFetch(`/api/news/downvotes/${id}/downvote`, {
       method: "POST",
     });
 

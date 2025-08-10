@@ -51,7 +51,7 @@ export default function NewsDetails() {
         if (!token) return;
 
         const res = await fetch(
-          `http://localhost:3000/api/news/${id}/upvotes`,
+          `http://localhost:3000/api/news/upvotes/${id}/upvotes`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ export default function NewsDetails() {
         if (!token) return;
 
         const res = await fetch(
-          `http://localhost:3000/api/news/${id}/downvotes`,
+          `http://localhost:3000/api/news/downvotes/${id}/downvotes`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
