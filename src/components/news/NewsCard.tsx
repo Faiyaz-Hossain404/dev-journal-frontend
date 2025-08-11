@@ -24,10 +24,15 @@ export default function NewsCard({
   const fallback =
     imageUrl?.trim() ||
     "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop";
+
+  const releaseText =
+    typeof releaseDate === "string"
+      ? releaseDate
+      : releaseDate.toLocaleDateString();
+
   return (
     <Card className="bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
       <div className="space-y-3">
-        {/* Thumbnail */}
         <div className="relative">
           <img
             src={fallback}
@@ -42,21 +47,17 @@ export default function NewsCard({
           ) : null}
         </div>
 
-        {/* Title */}
         <h3 className="font-semibold text-[#A8B3CF] text-base line-clamp-2">
           {title}
         </h3>
 
-        {/* Meta */}
         <div className="text-xs text-gray-400 flex items-center justify-between">
           <span className="truncate">{publisher}</span>
-          <span>{releaseDate}</span>
+          <span>{releaseText}</span>
         </div>
 
-        {/* Stats */}
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-1 text-white">
-            {/* Using “logo text” style for votes per your earlier requirement */}
             <span className="inline-flex items-center justify-center h-6 px-2 rounded bg-white text-black text-xs font-semibold">
               DEV+
             </span>
