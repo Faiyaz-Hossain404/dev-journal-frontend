@@ -72,7 +72,7 @@ export default function AddNews() {
                 onChange={(e) =>
                   handleFileUpload(e, setForm, setUploading, setError)
                 }
-                className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-md file:bg-white file:text-black"
+                className="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-md file:bg-white file:text-black file:cursor-pointer"
               />
               {uploading && (
                 <p className="text-gray-400 text-sm mt-1">Uploading...</p>

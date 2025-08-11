@@ -5,7 +5,7 @@ export type FormType = {
   link: string;
   releaseDate: string;
   publisher: string;
-  category: string;
+  category: string[];
 };
 
 export const initialForm: FormType = {
@@ -15,5 +15,5 @@ export const initialForm: FormType = {
   link: "",
   releaseDate: "",
   publisher: "",
-  category: "",
+  category: [],
 };
