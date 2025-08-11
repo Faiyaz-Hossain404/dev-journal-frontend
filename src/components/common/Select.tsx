@@ -5,9 +5,11 @@ type SelectProps = {
   name?: string;
   value: string | string[];
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: { label: string; value: string }[];
+  options: Options[];
   placeholder?: string;
   className?: string;
+  multiple?: boolean;
+  size?: number;
 };
 
 export default function Select({
@@ -18,7 +20,10 @@ export default function Select({
   options,
   placeholder,
   className,
+  multiple = false;
+  size,
 }: SelectProps) {
+  const selectValue = multiple ? (Array.isArray(value) ? value : []) : (typeof value === "string" ? value: "");
   return (
     <select
       id={id}
