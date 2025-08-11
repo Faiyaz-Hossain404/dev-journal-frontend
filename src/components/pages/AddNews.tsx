@@ -7,8 +7,14 @@ import {
 import Input from "../common/Input";
 import Button from "../common/Button";
 import Textarea from "../common/Textarea";
-import Select from "../common/Select";
+// import Select from "../common/Select";
+import ReactSelect from "react-select";
+import type { MultiValue } from "react-select";
 import { initialForm } from "../../types/FormType";
+import {
+  selectStyles,
+  type SelectOption,
+} from "../../styles/reactSelectStyles";
 
 const categoryOptions = [
   { label: "Technology", value: "technology" },
@@ -114,7 +120,29 @@ export default function AddNews() {
               <label className="block text-sm text-[#A8B3CF] mb-1">
                 Categories
               </label>
-              <Select
+              <ReactSelect
+                isMulti
+                isClearable
+                closeMenuOnSelect={false}
+                options={categoryOptions}
+                value={categoryOptions.filter((o) =>
+                  form.category.includes(o.value)
+                )}
+                onChange={(vals) => {
+                  const selected = (vals as MultiValue<SelectOption>).map(
+                    (v) => v.value
+                  );
+                  setForm((prev) => ({ ...prev, category: selected }));
+                }}
+                placeholder="Select categories"
+                styles={selectStyles}
+                className="text-sm"
+                classNamePrefix="rs"
+                classNames={{
+                  menuList: () => "hide-scrollbar", // ← hide scrollbar with your utility
+                }}
+              />
+              {/* <Select
                 name="category"
                 multiple
                 value={form.category}
@@ -122,12 +150,12 @@ export default function AddNews() {
                 options={categoryOptions}
                 placeholder="Select category"
                 className="w-full p-2 rounded-md bg-gray-800 text-[#A8B3CF]"
-              />
+              /> */}
               <div className="mt-w flex items-center gap-2">
                 <Button
                   type="button"
                   onClick={() => setForm((prev) => ({ ...prev, category: [] }))}
-                  className="p-0 h-auto bg-transparent text-sx text-gray-300 underline hover:underline shadow-none"
+                  className="p-0 h-auto bg-transparent text-sx text-gray-300 underline hover:underline shadow-none cursor-pointer"
                 >
                   Clear
                 </Button>

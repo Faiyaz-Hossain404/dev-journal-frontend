@@ -3,9 +3,12 @@ import Card from "../common/Card";
 type Props = {
   title: string;
   publisher: string;
-  releaseDate: string;
-  imageUrl: string;
-  upvotes: number;
+  releaseDate: string | Date;
+  imageUrl?: string;
+  upvotes?: number;
+  downvotes?: number;
+  commentsCount?: number;
+  categories?: string[];
 };
 
 export default function NewsCard({
