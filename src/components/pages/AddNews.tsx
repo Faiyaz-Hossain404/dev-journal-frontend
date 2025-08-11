@@ -109,19 +109,30 @@ export default function AddNews() {
               placeholder="Publisher"
               className="w-full p-2 rounded-md bg-gray-800 text-white placeholder-[#A8B3CF]"
             />
-            <label className="block text-sm text-[#A8B3CF] mb-1">
-              Categories
-            </label>
-            <Select
-              name="category"
-              multiple
-              value={form.category}
-              onChange={handleChange}
-              options={categoryOptions}
-              placeholder="Select category"
-              className="w-full p-2 rounded-md bg-gray-800 text-[#A8B3CF]"
-            />
 
+            <div>
+              <label className="block text-sm text-[#A8B3CF] mb-1">
+                Categories
+              </label>
+              <Select
+                name="category"
+                multiple
+                value={form.category}
+                onChange={handleChange}
+                options={categoryOptions}
+                placeholder="Select category"
+                className="w-full p-2 rounded-md bg-gray-800 text-[#A8B3CF]"
+              />
+              <div className="mt-w flex items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, category: [] }))}
+                  className="p-0 h-auto bg-transparent text-sx text-gray-300 underline hover:underline shadow-none"
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
             {error && <p className="text-red-400">{error}</p>}
 
             <div className="flex justify-end">
