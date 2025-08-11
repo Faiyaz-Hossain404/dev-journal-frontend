@@ -109,9 +109,12 @@ export default function AddNews() {
               placeholder="Publisher"
               className="w-full p-2 rounded-md bg-gray-800 text-white placeholder-[#A8B3CF]"
             />
-
+            <label className="block text-sm text-[#A8B3CF] mb-1">
+              Categories
+            </label>
             <Select
               name="category"
+              multiple
               value={form.category}
               onChange={handleChange}
               options={categoryOptions}

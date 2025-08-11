@@ -1,7 +1,9 @@
+type Options = { label: string; value: string };
+
 type SelectProps = {
   id?: string;
   name?: string;
-  value: string;
+  value: string | string[];
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: { label: string; value: string }[];
   placeholder?: string;

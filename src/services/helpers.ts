@@ -14,8 +14,23 @@ export const handleformChange = (
   >,
   setForm: React.Dispatch<React.SetStateAction<FormType>>
 ) => {
-  const { name, value } = e.target;
-  setForm((prev) => ({ ...prev, [name]: value }));
+  const target = e.target as
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLSelectElement;
+  const { name } = target;
+
+  if (target instanceof HTMLSelectElement && target.multiple) {
+    const values = Array.from(target.selectedOptions).map((o) => o.value);
+    setForm((prev) => ({ ...prev, [name]: values }));
+    return;
+  }
+
+  if (target instanceof HTMLInputElement && target.type === "checkbox") {
+    setForm((prev) => ({ ...prev, [name]: target.checked }));
+    return;
+  }
+  setForm((prev) => ({ ...prev, [name]: (target as any).value }));
 };
 
 export const submitNews = async (
