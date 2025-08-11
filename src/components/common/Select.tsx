@@ -20,19 +20,29 @@ export default function Select({
   options,
   placeholder,
   className,
-  multiple = false;
+  multiple = false,
   size,
 }: SelectProps) {
-  const selectValue = multiple ? (Array.isArray(value) ? value : []) : (typeof value === "string" ? value: "");
+  const selectValue = multiple
+    ? Array.isArray(value)
+      ? value
+      : []
+    : typeof value === "string"
+    ? value
+    : "";
   return (
     <select
       id={id}
       name={name}
-      value={value}
+      multiple={multiple}
+      value={selectValue as any}
       onChange={onChange}
       className={className}
+      size={
+        multiple ? size ?? Math.min(8, Math.max(3, options.length)) : undefined
+      }
     >
-      {placeholder && (
+      {!multiple && placeholder && (
         <option value="" disabled hidden>
           {placeholder}
         </option>
