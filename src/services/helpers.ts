@@ -66,6 +66,11 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
       body: formData,
     });
 
+    if (res.status === 401) {
+      setError("Session expired. Please log in again.");
+      return;
+    }
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Upload failed");
 
@@ -188,7 +193,7 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 //Upvote|NewsDetails
 
 export const upvoteNewsItem = async (id: string) => {
-  const res = await apiFetch(`/api/news/${id}/upvote`, {
+  const res = await apiFetch(`/api/news/upvotes/${id}/upvote`, {
     method: "POST",
   });
 

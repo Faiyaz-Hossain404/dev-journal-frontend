@@ -64,7 +64,7 @@ export default function AddNews() {
 
             <div>
               <label className="block text-sm text-[#A8B3CF] mb-1">
-                Upload Thumbnail
+                Upload Photo
               </label>
               <input
                 type="file"
