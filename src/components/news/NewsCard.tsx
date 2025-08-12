@@ -1,4 +1,5 @@
 import Card from "../common/Card";
+import Stat from "../common/Stat";
 
 type Props = {
   title: string;
@@ -31,8 +32,9 @@ export default function NewsCard({
       : releaseDate.toLocaleDateString();
 
   return (
-    <Card className="bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
-      <div className="space-y-3">
+    <Card className="h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
+      <div className="h-full flex flex-col space-y-3">
+        {/* Thumbnail */}
         <div className="relative">
           <img
             src={fallback}
@@ -40,44 +42,46 @@ export default function NewsCard({
             className="rounded w-full h-40 object-cover"
             loading="lazy"
           />
-          {category ? (
-            <span className="absolute bottom-2 left-2 text-xs bg-white text-black px-2 py-0.5 rounded">
-              {category}
-            </span>
+          {category && category.length > 0 ? (
+            <div className="absolute bottom-2 left-2 flex gap-2 max-w-[90%] overflow-x-auto hide-scrollbar pr-2">
+              {category.map((cat) => (
+                <span
+                  key={cat}
+                  className="text-xs bg-white text-black px-2 py-0.5 rounded whitespace-nowrap"
+                >
+                  {cat}
+                </span>
+              ))}
+            </div>
           ) : null}
         </div>
-
+        {/* Title */}
         <h3 className="font-semibold text-[#A8B3CF] text-base line-clamp-2">
           {title}
         </h3>
-
+        {/* Meta */}
         <div className="text-xs text-gray-400 flex items-center justify-between">
           <span className="truncate">{publisher}</span>
           <span>{releaseText}</span>
         </div>
-
-        <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-1 text-white">
-            <span className="inline-flex items-center justify-center h-6 px-2 rounded bg-white text-black text-xs font-semibold">
-              DEV+
-            </span>
-            <span className="text-[#A8B3CF]">Upvotes:</span>
-            <span>{upvotes}</span>
-          </div>
-
-          <div className="flex items-center gap-1 text-white">
-            <span className="inline-flex items-center justify-center h-6 px-2 rounded bg-white text-black text-xs font-semibold">
-              DEV-
-            </span>
-            <span className="text-[#A8B3CF]">Downvotes:</span>
-            <span>{downvotes}</span>
-          </div>
-
-          <div className="ml-auto flex items-center gap-1 text-gray-300">
-            <span>💬</span>
-            <span className="text-[#A8B3CF]">Comments:</span>
-            <span>{commentsCount}</span>
-          </div>
+        {/* Stats pinned to bottom */}
+        <div className="mt-auto flex items-center gap-4 text-sm">
+          <Stat
+            icon={<img src={upIcon} alt="" className="w-4 h-4" />}
+            label="Upvotes"
+            value={upvotes}
+          />
+          <Stat
+            icon={<img src={downIcon} alt="" className="w-4 h-4" />}
+            label="Downvotes"
+            value={downvotes}
+          />
+          <Stat
+            icon={<img src={commentIcon} alt="" className="w-4 h-4" />}
+            label="Comments"
+            value={commentsCount}
+            className="ml-auto"
+          />
         </div>
       </div>
     </Card>

@@ -56,6 +56,19 @@ export default function AddNews() {
       <div className="w-full max-w-xl">
         <h1 className="text-xl font-bold text-[#A8B3CF] mb-6">📰 New post</h1>
 
+        {success && (
+          <div
+            role="status"
+            className="mb-4 rounded border border-green-500 bg-green-600/10 text-green-400 px-3 py-2"
+          >
+            {success}
+          </div>
+        )}
+        {error && (
+          <p className="text-red-400 mb-4" role="alert">
+            {error}
+          </p>
+        )}
         <div className="border border-gray-700 rounded-lg p-6 mb-6">
           <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
             <Input
