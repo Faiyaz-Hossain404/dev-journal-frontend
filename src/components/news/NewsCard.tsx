@@ -72,17 +72,27 @@ export default function NewsCard({
         {/* Stats pinned to bottom */}
         <div className="mt-auto flex items-center gap-4 text-sm">
           <Stat
-            icon={<img src={upIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <img src={upIcon} alt="" className="w-4 h-4 cursor-pointer" />
+            }
             label="Upvotes"
             value={upvotes}
           />
           <Stat
-            icon={<img src={downIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <img src={downIcon} alt="" className="w-4 h-4 cursor-pointer" />
+            }
             label="Downvotes"
             value={downvotes}
           />
           <Stat
-            icon={<img src={commentIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <img
+                src={commentIcon}
+                alt=""
+                className="w-4 h-4 cursor-pointer"
+              />
+            }
             label="Comments"
             value={commentsCount}
             className="ml-auto"
