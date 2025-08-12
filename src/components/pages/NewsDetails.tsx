@@ -11,6 +11,9 @@ import Button from "../common/Button";
 import type { Comment } from "../../types/Comment";
 import type { NewsItem } from "../../types/NewsItem";
 import { apiFetch } from "../../services/api";
+import upIcon from "../../assets/up.png";
+import downIcon from "../../assets/down.png";
+import commentIcon from "../../assets/comment.png";
 
 export default function NewsDetails() {
   const { id } = useParams<{ id: string }>();
@@ -101,8 +104,9 @@ export default function NewsDetails() {
 
   const handleUpvote = async () => {
     try {
-      await upvoteNewsItem(id!);
-      setNews((prev) => (prev ? { ...prev, upvotes: prev.upvotes + 1 } : null));
+      const result = await upvoteNewsItem(id!); // hits POST /api/news/upvotes/:id/upvote
+      const newCount = result?.upvotes ?? (news ? news.upvotes + 1 : 1);
+      setNews((prev) => (prev ? { ...prev, upvotes: newCount } : prev));
       setHasUpvoted(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to upvote");
@@ -111,7 +115,7 @@ export default function NewsDetails() {
 
   const handleDownvote = () => {
     if (!id) return;
-    handleDownvoteNewsItem(id, setNews, setHasDownvoted, setError);
+    handleDownvoteNewsItem(id, setNews, setHasDownvoted, setError); // POST /api/news/downvotes/:id/downvote
   };
 
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
@@ -121,20 +125,23 @@ export default function NewsDetails() {
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
       <h1 className="text-2xl font-bold text-[#A8B3CF] mb-4">{news.title}</h1>
 
-      <img
-        src={news.imageUrl}
-        alt={news.title}
-        className="w-full max-w-3xl rounded mb-4"
-      />
+      {news.imageUrl && (
+        <img
+          src={news.imageUrl}
+          alt={news.title}
+          className="w-full max-w-3xl rounded mb-4 object-cover"
+        />
+      )}
 
       <p className="text-gray-300 mb-4">{news.description}</p>
 
-      <div className="text-sm text-gray-400 mb-4">
+      <div className="text-sm text-gray-400 mb-6">
         <span>
           {news.publisher} • {news.category} • {news.releaseDate}
         </span>
       </div>
 
+      {/* Actions */}
       <div className="flex items-center gap-4 mb-8">
         <Button
           onClick={handleUpvote}
@@ -145,20 +152,28 @@ export default function NewsDetails() {
           }`}
           disabled={hasUpvoted}
         >
-          🚀 Upvote ({news.upvotes})
+          <img src={upIcon} alt="" className="w-4 h-4" />
+          <span className="text-sm">Upvote ({news.upvotes})</span>
         </Button>
+
         <Button
           onClick={handleDownvote}
           className={`flex items-center gap-2 px-3 py-1 rounded ${
-            hasUpvoted
+            hasDownvoted
               ? "bg-red-600 text-white"
               : "bg-white text-black hover:bg-gray-100"
           }`}
           disabled={hasDownvoted}
         >
-          👎 Downvote ({news.downvotes || 0})
+          <img src={downIcon} alt="" className="w-4 h-4" />
+          <span className="text-sm">Downvote ({news.downvotes || 0})</span>
         </Button>
-        <span className="text-white">💬 Comments: {comments.length}</span>
+
+        <div className="flex items-center gap-2 ml-auto text-gray-300">
+          <img src={commentIcon} alt="" className="w-4 h-4" />
+          <span className="text-sm">Comments: {comments.length}</span>
+        </div>
+
         <a
           href={news.link}
           target="_blank"
@@ -169,6 +184,7 @@ export default function NewsDetails() {
         </a>
       </div>
 
+      {/* Comments */}
       <div className="max-w-xl space-y-4">
         <form onSubmit={handleCommentSubmit}>
           <Input
