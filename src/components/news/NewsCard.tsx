@@ -39,10 +39,8 @@ export default function NewsCard({
       <div className="h-full flex flex-col space-y-3">
         {/* HEADER (fixed height so images align) */}
         <div className="space-y-1 min-h-[5rem]">
-          {" "}
           {/* ← fixed block height */}
           <h3 className="font-bold text-white text-base leading-snug line-clamp-2 min-h-[2.75rem]">
-            {/* two lines ≈ 2.75rem with leading-snug */}
             {title}
           </h3>
           <div className="text-xs text-gray-400 flex items-center justify-between h-5">
