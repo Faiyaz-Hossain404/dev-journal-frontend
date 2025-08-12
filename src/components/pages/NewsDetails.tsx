@@ -29,18 +29,19 @@ export default function NewsDetails() {
 
         const newsRes = await fetch(`http://localhost:3000/api/news/${id}`);
         if (!newsRes.ok) throw new Error("Failed to fetch news");
-        setNews(await newsRes.json());
+        const newsData = await newsRes.json();
+        setNews(newsData);
 
         const commentsData = await fetchComments(id!);
         setComments(commentsData);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Error occured");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error occurred");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    if (id) fetchData();
   }, [id]);
 
   //Fetching upvote stat
