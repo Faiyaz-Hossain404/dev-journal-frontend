@@ -28,6 +28,7 @@ export default function AddNews() {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -39,10 +40,15 @@ export default function AddNews() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log("Form submitted:", form);
     setError("");
-    await submitNews(form, setForm, setError);
+    setSuccess("");
+
+    const ok = await submitNews(form, setForm, setError);
+    if (ok) {
+      setSuccess("News posted successfully!");
+      // setTimeout(() => setSuccess(""), 3000);
+    }
+    console.log("Form submitted:", form);
   };
 
   return (
