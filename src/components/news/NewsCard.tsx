@@ -1,5 +1,8 @@
 import Card from "../common/Card";
 import Stat from "../common/Stat";
+import upIcon from "../../assets/up.png";
+import downIcon from "../../assets/down.png";
+import commentIcon from "../../assets/comment.png";
 
 type Props = {
   title: string;
@@ -34,7 +37,20 @@ export default function NewsCard({
   return (
     <Card className="h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
       <div className="h-full flex flex-col space-y-3">
-        {/* Thumbnail */}
+        {/* HEADER (fixed height so images align) */}
+        <div className="space-y-1 min-h-[5rem]">
+          {" "}
+          {/* ← fixed block height */}
+          <h3 className="font-bold text-white text-base leading-snug line-clamp-2 min-h-[2.75rem]">
+            {/* two lines ≈ 2.75rem with leading-snug */}
+            {title}
+          </h3>
+          <div className="text-xs text-gray-400 flex items-center justify-between h-5">
+            {/* meta line fixed height */}
+            <span className="truncate">{publisher}</span>
+            <span>{releaseText}</span>
+          </div>
+        </div>
         <div className="relative">
           <img
             src={fallback}
@@ -54,15 +70,6 @@ export default function NewsCard({
               ))}
             </div>
           ) : null}
-        </div>
-        {/* Title */}
-        <h3 className="font-semibold text-[#A8B3CF] text-base line-clamp-2">
-          {title}
-        </h3>
-        {/* Meta */}
-        <div className="text-xs text-gray-400 flex items-center justify-between">
-          <span className="truncate">{publisher}</span>
-          <span>{releaseText}</span>
         </div>
         {/* Stats pinned to bottom */}
         <div className="mt-auto flex items-center gap-4 text-sm">

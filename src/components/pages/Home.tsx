@@ -10,6 +10,9 @@ type News = {
   releaseDate: string;
   imageUrl: string;
   upvotes?: number;
+  downvotes?: number;
+  commentsCount?: number;
+  category?: string[];
 };
 
 export default function Home() {
@@ -45,20 +48,20 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1217] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+    <div className="min-h-screen bg-[#0E1217] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[360px] gap-6 p-6">
       {newsList.map((news) => (
-        <Link
-          key={news.id}
-          to={`/news/${news.id}`}
-          aria-label={`Open ${news.title}`}
-        >
-          <NewsCard
-            title={news.title}
-            publisher={news.publisher}
-            releaseDate={news.releaseDate}
-            imageUrl={news.imageUrl}
-            upvotes={news.upvotes || 0}
-          />
+        <Link key={news.id} to={`/news/${news.id}`} className="h-full block">
+          <div className="h-full overflow-hidden rounded-lg">
+            {" "}
+            <NewsCard
+              title={news.title}
+              publisher={news.publisher}
+              releaseDate={news.releaseDate}
+              imageUrl={news.imageUrl}
+              upvotes={news.upvotes || 0}
+              commentsCount={news.commentsCount || 0}
+            />
+          </div>
         </Link>
       ))}
     </div>
