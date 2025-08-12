@@ -10,6 +10,7 @@ import Input from "../common/Input";
 import Button from "../common/Button";
 import type { Comment } from "../../types/Comment";
 import type { NewsItem } from "../../types/NewsItem";
+import { apiFetch } from "../../services/api";
 
 export default function NewsDetails() {
   const { id } = useParams<{ id: string }>();
@@ -49,20 +50,14 @@ export default function NewsDetails() {
     const checkUserUpvoted = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token || !id) return;
 
-        const res = await fetch(
-          `http://localhost:3000/api/news/upvotes/${id}/upvotes`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const res = await apiFetch(`/api/news/upvotes/${id}/upvotes`, {
+          method: "POST",
+        });
         if (res.ok) {
           const data = await res.json();
-          setHasUpvoted(data.hasUpvoted);
+          setHasUpvoted(!!data.hasUpvoted);
         }
       } catch {}
     };
@@ -74,20 +69,15 @@ export default function NewsDetails() {
     const checkUserDownvoted = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token || !id) return;
 
-        const res = await fetch(
-          `http://localhost:3000/api/news/downvotes/${id}/downvotes`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await apiFetch(`/api/news/downvotes/${id}/downvotes`, {
+          method: "GET",
+        });
 
         if (res.ok) {
           const data = await res.json();
-          setHasDownvoted(data.hasDownvoted);
+          setHasDownvoted(!!data.hasDownvoted);
         }
       } catch {}
     };
