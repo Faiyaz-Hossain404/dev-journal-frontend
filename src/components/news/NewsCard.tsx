@@ -13,6 +13,10 @@ type Props = {
   downvotes?: number;
   commentsCount?: number;
   category?: string[];
+  onUpvote?: () => void;
+  onDownvote?: () => void;
+  onCommentsClick?: () => void;
+  className?: string;
 };
 
 export default function NewsCard({
@@ -24,6 +28,10 @@ export default function NewsCard({
   downvotes = 0,
   commentsCount = 0,
   category,
+  onUpvote,
+  onDownvote,
+  onCommentsClick,
+  className = "",
 }: Props) {
   const fallback =
     imageUrl?.trim() ||
