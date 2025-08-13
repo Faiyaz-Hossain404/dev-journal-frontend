@@ -42,6 +42,11 @@ export default function NewsCard({
       ? releaseDate
       : releaseDate.toLocaleDateString();
 
+  const stop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <Card className="h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
       <div className="h-full flex flex-col space-y-3">
