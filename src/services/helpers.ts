@@ -211,37 +211,52 @@ export const upvoteNewsItem = async (id: string) => {
   const res = await apiFetch(`/api/news/upvotes/${id}/upvote`, {
     method: "POST",
   });
+  let data: any = null;
 
-  if (!res.ok) {
-    throw new Error("Failed to upvote");
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
   }
-  return res.json();
+  return { ok: res.ok, status: res.status, data };
 };
 
 //Downvote/NewsDetails
 export const handleDownvoteNewsItem = async (
   id: string,
-  setNews: React.Dispatch<React.SetStateAction<NewsItem | null>>,
-  setHasDownvoted: React.Dispatch<React.SetStateAction<boolean>>,
-  setError: React.Dispatch<React.SetStateAction<string>>
+  setNews:
+    | React.Dispatch<React.SetStateAction<NewsItem | null>>
+    | ((updater: any) => void),
+  setHasDownvoted: React.Dispatch<React.SetStateAction<boolean>> | (() => void),
+  _setError: React.Dispatch<React.SetStateAction<string>> | (() => void)
 ) => {
+  const res = await apiFetch(`/api/news/downvotes/${id}/downvote`, {
+    method: "POST",
+  });
+  let data: any = null;
   try {
-    const res = await apiFetch(`/api/news/downvotes/${id}/downvote`, {
-      method: "POST",
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      setError(err.error || "Failed to downvote");
-      return;
-    }
-
-    const data = await res.json();
-    setNews((prev) => (prev ? { ...prev, downvotes: data.downvotes } : null));
-    setHasDownvoted(data.created);
-  } catch (err) {
-    setError("Failed to downvote");
+    data = await res.json();
+  } catch {
+    data = null;
   }
+
+  if (!res.ok) {
+    // bubble structured info to caller
+    return { ok: false, status: res.status, data };
+  }
+
+  // When used on details page: update exact count and flag
+  if (typeof setNews === "function") {
+    (setNews as any)((prev: NewsItem | null) =>
+      prev
+        ? { ...prev, downvotes: data?.downvotes ?? (prev.downvotes || 0) + 1 }
+        : prev
+    );
+  }
+  if (typeof setHasDownvoted === "function") {
+    (setHasDownvoted as any)(!!data?.created);
+  }
+  return { ok: true, status: res.status, data };
 };
 
 //Auth Service

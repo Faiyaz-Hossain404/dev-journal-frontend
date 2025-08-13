@@ -63,7 +63,7 @@ export default function NewsCard({
           <img
             src={fallback}
             alt={title}
-            className="rounded w-full h-40 object-cover"
+            className="rounded w-full h-50 object-cover"
             loading="lazy"
           />
           {category && category.length > 0 ? (
@@ -83,21 +83,37 @@ export default function NewsCard({
         {/* Actions / Stats */}
         <div className="mt-auto flex items-center gap-4 text-sm">
           <Stat
-            icon={<img src={upIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-green-400 hover:shadow-[0_0_30px_rgba(8,145,178,0.3)]">
+                <img src={upIcon} alt="" className="w-4 h-4" />
+              </div>
+            }
             label="Upvotes"
             value={upvotes}
             onClick={() => onUpvote?.()}
           />
 
           <Stat
-            icon={<img src={downIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.6)]">
+                <img src={downIcon} alt="" className="w-4 h-4 cursor-pointer" />
+              </div>
+            }
             label="Downvotes"
             value={downvotes}
             onClick={() => onDownvote?.()}
           />
 
           <Stat
-            icon={<img src={commentIcon} alt="" className="w-4 h-4" />}
+            icon={
+              <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-cyan-500 hover:shadow-[0_0_10px_rgba(8,145,178,0.5)]">
+                <img
+                  src={commentIcon}
+                  alt=""
+                  className="w-4 h-4 cursor-pointer"
+                />
+              </div>
+            }
             label="Comments"
             value={commentsCount}
             className="ml-auto"

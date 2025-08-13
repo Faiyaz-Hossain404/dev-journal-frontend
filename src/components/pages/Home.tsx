@@ -56,44 +56,53 @@ export default function Home() {
 
   // Inline handlers that update list state after server calls
   const onUpvote = async (id: number) => {
-    try {
-      await upvoteNewsItem(String(id));
+    const res = await upvoteNewsItem(String(id));
+    if (res.ok) {
+      const serverCount = res.data?.upvotes;
       setNewsList((prev) =>
         prev.map((n) =>
-          n.id === id ? { ...n, upvotes: (n.upvotes || 0) + 1 } : n
+          n.id === id
+            ? { ...n, upvotes: serverCount ?? (n.upvotes || 0) + 1 }
+            : n
         )
       );
-    } catch {
-      // optionally toast error
+      return;
     }
+    if (res.status === 400) {
+      // Already upvoted — do nothing (or toast)
+      return;
+    }
+    // Other error — optionally show message
+    // e.g. toast.error(res.data?.error || "Failed to upvote");
   };
 
   const onDownvote = async (id: number) => {
-    try {
-      // Adapt helper signature to list state:
-      await handleDownvoteNewsItem(
-        String(id),
-        (updater) =>
-          setNewsList((prev) => {
-            const current = prev.find((p) => p.id === id);
-            if (!current) return prev;
-            const next =
-              typeof updater === "function"
-                ? (updater as any)({ ...current } as unknown as NewsItem)
-                : updater;
-            const nextDownvotes =
-              (next as any)?.downvotes ?? (current.downvotes || 0) + 1;
-            return prev.map((p) =>
-              p.id === id ? { ...p, downvotes: nextDownvotes } : p
-            );
-          }),
-        // we don't maintain a per-card "hasDownvoted" flag in the list; no-op:
-        () => {},
-        () => {}
-      );
-    } catch {
-      // optionally toast error
+    const res = await handleDownvoteNewsItem(
+      String(id),
+      // adapter for list updates: only update the matching item
+      (updater: any) =>
+        setNewsList((prev) => {
+          const current = prev.find((p) => p.id === id);
+          if (!current) return prev;
+          const nextFromUpdater =
+            typeof updater === "function"
+              ? updater({ ...(current as unknown as NewsItem) })
+              : updater;
+          const nextDownvotes =
+            nextFromUpdater?.downvotes ?? (current.downvotes || 0) + 1;
+          return prev.map((p) =>
+            p.id === id ? { ...p, downvotes: nextDownvotes } : p
+          );
+        }),
+      () => {}, // we don't keep a hasDownvoted flag per card on Home
+      () => {}
+    );
+
+    if (!res?.ok && res?.status === 400) {
+      // Already downvoted — ignore
+      return;
     }
+    // Optionally handle other errors
   };
 
   return (
@@ -101,7 +110,7 @@ export default function Home() {
       {newsList.map((news) => (
         <div
           key={news.id}
-          className="h-full rounded-lg overflow-hidden cursor-pointer"
+          className="h-full max-w-sm w-full justify-self-center rounded-lg overflow-hidden cursor-pointer"
           onClick={() => openDetails(news.id)}
           role="button"
           tabIndex={0}

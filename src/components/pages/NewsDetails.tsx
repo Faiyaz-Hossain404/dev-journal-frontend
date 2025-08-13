@@ -104,10 +104,20 @@ export default function NewsDetails() {
 
   const handleUpvote = async () => {
     try {
-      const result = await upvoteNewsItem(id!); // hits POST /api/news/upvotes/:id/upvote
-      const newCount = result?.upvotes ?? (news ? news.upvotes + 1 : 1);
-      setNews((prev) => (prev ? { ...prev, upvotes: newCount } : prev));
-      setHasUpvoted(true);
+      const res = await upvoteNewsItem(id!); // { ok, status, data }
+      if (res.ok) {
+        const serverCount = res.data?.upvotes;
+        setNews((prev) =>
+          prev ? { ...prev, upvotes: serverCount ?? prev.upvotes + 1 } : prev
+        );
+        setHasUpvoted(true);
+        return;
+      }
+      if (res.status === 400) {
+        setHasUpvoted(true);
+        return;
+      }
+      setError(res.data?.error || "Failed to upvote");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to upvote");
     }
