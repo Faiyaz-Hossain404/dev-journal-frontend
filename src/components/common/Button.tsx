@@ -11,7 +11,7 @@ export default function Button({
   onClick,
   className,
   type = "button",
-  disabled = false,
+  disabled,
 }: ButtonProps) {
   return (
     <button

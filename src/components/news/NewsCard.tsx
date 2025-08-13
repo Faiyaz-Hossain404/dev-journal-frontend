@@ -42,26 +42,23 @@ export default function NewsCard({
       ? releaseDate
       : releaseDate.toLocaleDateString();
 
-  const stop = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   return (
-    <Card className="h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors">
+    <Card
+      className={`h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors ${className}`}
+    >
       <div className="h-full flex flex-col space-y-3">
-        {/* HEADER (fixed height so images align) */}
+        {/* Header */}
         <div className="space-y-1 min-h-[5rem]">
-          {/* ← fixed block height */}
           <h3 className="font-bold text-white text-base leading-snug line-clamp-2 min-h-[2.75rem]">
             {title}
           </h3>
           <div className="text-xs text-gray-400 flex items-center justify-between h-5">
-            {/* meta line fixed height */}
             <span className="truncate">{publisher}</span>
             <span>{releaseText}</span>
           </div>
         </div>
+
+        {/* Thumbnail */}
         <div className="relative">
           <img
             src={fallback}
@@ -82,33 +79,29 @@ export default function NewsCard({
             </div>
           ) : null}
         </div>
-        {/* Stats pinned to bottom */}
+
+        {/* Actions / Stats */}
         <div className="mt-auto flex items-center gap-4 text-sm">
           <Stat
-            icon={
-              <img src={upIcon} alt="" className="w-4 h-4 cursor-pointer" />
-            }
+            icon={<img src={upIcon} alt="" className="w-4 h-4" />}
             label="Upvotes"
             value={upvotes}
+            onClick={() => onUpvote?.()}
           />
+
           <Stat
-            icon={
-              <img src={downIcon} alt="" className="w-4 h-4 cursor-pointer" />
-            }
+            icon={<img src={downIcon} alt="" className="w-4 h-4" />}
             label="Downvotes"
             value={downvotes}
+            onClick={() => onDownvote?.()}
           />
+
           <Stat
-            icon={
-              <img
-                src={commentIcon}
-                alt=""
-                className="w-4 h-4 cursor-pointer"
-              />
-            }
+            icon={<img src={commentIcon} alt="" className="w-4 h-4" />}
             label="Comments"
             value={commentsCount}
             className="ml-auto"
+            onClick={() => onCommentsClick?.()}
           />
         </div>
       </div>

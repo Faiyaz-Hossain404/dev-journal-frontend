@@ -1,10 +1,13 @@
 import React from "react";
+import Button from "./Button";
 
 type StatProps = {
   icon: React.ReactNode;
   label: string;
   value: number | undefined;
   className?: string;
+  onClick?: (e: React.MouseEvent) => void;
+  disabled?: boolean;
 };
 
 export default function Stat({
@@ -12,11 +15,11 @@ export default function Stat({
   label,
   value,
   className = "",
+  onClick,
+  disabled = false,
 }: StatProps) {
-  return (
-    <div
-      className={`relative group flex items-center gap-1 text-white ${className}`}
-    >
+  const content = (
+    <>
       <span aria-hidden className="cursor-default">
         {icon}
       </span>
@@ -32,8 +35,32 @@ export default function Stat({
       >
         {label}
       </div>
-      {/* SR-only label for accessibility */}
       <span className="sr-only">{label}</span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <Button
+        type="button"
+        disabled={disabled}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onClick(e);
+        }}
+        className={`relative group inline-flex items-center gap-1 text-white ${className}`}
+      >
+        {content}
+      </Button>
+    );
+  }
+
+  return (
+    <div
+      className={`relative group inline-flex items-center gap-1 text-white ${className}`}
+    >
+      {content}
     </div>
   );
 }
