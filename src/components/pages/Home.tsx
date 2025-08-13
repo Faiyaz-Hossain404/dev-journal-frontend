@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchNews } from "../../services/NewsService";
 import NewsCard from "../news/NewsCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type News = {
   id: number;
@@ -18,6 +18,7 @@ type News = {
 export default function Home() {
   const [newsList, setNewsList] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let alive = true;
