@@ -56,7 +56,7 @@ export default function NewsDetails() {
         if (!token || !id) return;
 
         const res = await apiFetch(`/api/news/upvotes/${id}/upvotes`, {
-          method: "POST",
+          method: "GET",
         });
         if (res.ok) {
           const data = await res.json();
