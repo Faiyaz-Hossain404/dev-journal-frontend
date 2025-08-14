@@ -206,57 +206,69 @@ export const fetchComments = async (newsId: string): Promise<Comment[]> => {
 };
 
 //Upvote|NewsDetails
+export const getUpvoteStatus = async (id: string) => {
+  const res = await apiFetch(`/api/news/upvotes/${id}/upvotes`, {
+    method: "GET",
+  });
+  if (!res.ok) return { hasUpvoted: false };
+  return res.json(); // { hasUpvoted: boolean }
+};
 
 export const upvoteNewsItem = async (id: string) => {
   const res = await apiFetch(`/api/news/upvotes/${id}/upvote`, {
     method: "POST",
   });
-  let data: any = null;
+  if (!res.ok) throw new Error("Failed to upvote");
+  return res.json() as Promise<{
+    upvotes: number;
+    downvotes: number;
+    created: boolean;
+  }>;
+};
 
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
-  }
-  return { ok: res.ok, status: res.status, data };
+export const undoUpvoteNewsItem = async (id: string) => {
+  const res = await apiFetch(`/api/news/upvotes/${id}/upvote`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to undo upvote");
+  return res.json() as Promise<{
+    upvotes: number;
+    downvotes: number;
+    deleted: boolean;
+  }>;
 };
 
 //Downvote/NewsDetails
-export const handleDownvoteNewsItem = async (
-  id: string,
-  setNews:
-    | React.Dispatch<React.SetStateAction<NewsItem | null>>
-    | ((updater: any) => void),
-  setHasDownvoted: React.Dispatch<React.SetStateAction<boolean>> | (() => void),
-  _setError: React.Dispatch<React.SetStateAction<string>> | (() => void)
-) => {
+export const getDownvoteStatus = async (id: string) => {
+  const res = await apiFetch(`/api/news/downvotes/${id}/downvotes`, {
+    method: "GET",
+  });
+  if (!res.ok) return { hasDownvoted: false };
+  return res.json(); // { hasDownvoted: boolean }
+};
+
+export const downvoteNewsItem = async (id: string) => {
   const res = await apiFetch(`/api/news/downvotes/${id}/downvote`, {
     method: "POST",
   });
-  let data: any = null;
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
-  }
+  if (!res.ok) throw new Error("Failed to downvote");
+  return res.json() as Promise<{
+    downvotes: number;
+    upvotes: number;
+    created: boolean;
+  }>;
+};
 
-  if (!res.ok) {
-    // bubble structured info to caller
-    return { ok: false, status: res.status, data };
-  }
-
-  // When used on details page: update exact count and flag
-  if (typeof setNews === "function") {
-    (setNews as any)((prev: NewsItem | null) =>
-      prev
-        ? { ...prev, downvotes: data?.downvotes ?? (prev.downvotes || 0) + 1 }
-        : prev
-    );
-  }
-  if (typeof setHasDownvoted === "function") {
-    (setHasDownvoted as any)(!!data?.created);
-  }
-  return { ok: true, status: res.status, data };
+export const undoDownvoteNewsItem = async (id: string) => {
+  const res = await apiFetch(`/api/news/downvotes/${id}/downvote`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to undo downvote");
+  return res.json() as Promise<{
+    downvotes: number;
+    upvotes: number;
+    deleted: boolean;
+  }>;
 };
 
 //Auth Service

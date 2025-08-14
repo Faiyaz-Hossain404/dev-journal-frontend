@@ -16,6 +16,8 @@ type Props = {
   onUpvote?: () => void;
   onDownvote?: () => void;
   onCommentsClick?: () => void;
+  disableUpvote?: boolean;
+  disableDownvote?: boolean;
   className?: string;
 };
 
@@ -31,6 +33,8 @@ export default function NewsCard({
   onUpvote,
   onDownvote,
   onCommentsClick,
+  disableUpvote = false,
+  disableDownvote = false,
   className = "",
 }: Props) {
   const fallback =
@@ -84,24 +88,38 @@ export default function NewsCard({
         <div className="mt-auto flex items-center gap-4 text-sm">
           <Stat
             icon={
-              <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-green-400 hover:shadow-[0_0_30px_rgba(8,145,178,0.3)]">
+              <div
+                className={`w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200 ${
+                  disableUpvote
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer hover:bg-green-400 hover:shadow-[0_0_30px_rgba(8,145,178,0.3)]"
+                }`}
+              >
                 <img src={upIcon} alt="" className="w-4 h-4" />
               </div>
             }
             label="Upvotes"
             value={upvotes}
-            onClick={() => onUpvote?.()}
+            onClick={() => !disableUpvote && onUpvote?.()}
+            disabled={disableUpvote}
           />
 
           <Stat
             icon={
-              <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.6)]">
-                <img src={downIcon} alt="" className="w-4 h-4 cursor-pointer" />
+              <div
+                className={`w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200 ${
+                  disableDownvote
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer hover:bg-red-400 hover:shadow-[0_0_10px_rgba(239,68,68,0.6)]"
+                }`}
+              >
+                <img src={downIcon} alt="" className="w-4 h-4" />
               </div>
             }
             label="Downvotes"
             value={downvotes}
-            onClick={() => onDownvote?.()}
+            onClick={() => !disableDownvote && onDownvote?.()}
+            disabled={disableDownvote}
           />
 
           <Stat

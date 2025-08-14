@@ -147,7 +147,12 @@ export default function NewsDetails() {
 
       <div className="text-sm text-gray-400 mb-6">
         <span>
-          {news.publisher} • {news.category} • {news.releaseDate}
+          {/* {news.publisher} • {news.category} • {news.releaseDate} */}
+          {news.publisher} •{" "}
+          {Array.isArray(news.category)
+            ? news.category.join(", ")
+            : news.category}{" "}
+          • {news.releaseDate}
         </span>
       </div>
 

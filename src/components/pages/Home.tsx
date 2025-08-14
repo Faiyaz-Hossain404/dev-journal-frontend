@@ -20,6 +20,8 @@ type News = {
 export default function Home() {
   const [newsList, setNewsList] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
+  const [upvotedIds, setUpvotedIds] = useState<Set<number>>(new Set());
+  const [downvotedIds, setDownvotedIds] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +37,6 @@ export default function Home() {
     return () => {
       alive = false;
     };
-    // fetchNews().then(setNewsList);
   }, []);
 
   if (loading) {
@@ -50,13 +51,13 @@ export default function Home() {
     );
   }
 
-  // Navigate when the user clicks the card background (not the stat buttons)
   const openDetails = (id: number) => navigate(`/news/${id}`);
   const openComments = (id: number) => navigate(`/news/${id}#comments`);
 
-  // Inline handlers that update list state after server calls
   const onUpvote = async (id: number) => {
-    const res = await upvoteNewsItem(String(id));
+    if (upvotedIds.has(id)) return; // already handled for this card
+
+    const res = await upvoteNewsItem(String(id)); // { ok, status, data }
     if (res.ok) {
       const serverCount = res.data?.upvotes;
       setNewsList((prev) =>
@@ -66,17 +67,20 @@ export default function Home() {
             : n
         )
       );
+      setUpvotedIds((s) => new Set(s).add(id));
       return;
     }
     if (res.status === 400) {
-      // Already upvoted — do nothing (or toast)
+      // Already upvoted -> disable further clicks
+      setUpvotedIds((s) => new Set(s).add(id));
       return;
     }
-    // Other error — optionally show message
-    // e.g. toast.error(res.data?.error || "Failed to upvote");
+    // optionally toast: res.data?.error
   };
 
   const onDownvote = async (id: number) => {
+    if (downvotedIds.has(id)) return;
+
     const res = await handleDownvoteNewsItem(
       String(id),
       // adapter for list updates: only update the matching item
@@ -94,15 +98,18 @@ export default function Home() {
             p.id === id ? { ...p, downvotes: nextDownvotes } : p
           );
         }),
-      () => {}, // we don't keep a hasDownvoted flag per card on Home
+      () => {}, // no per-card flag in list view
       () => {}
     );
 
-    if (!res?.ok && res?.status === 400) {
-      // Already downvoted — ignore
+    if (res?.ok) {
+      setDownvotedIds((s) => new Set(s).add(id));
       return;
     }
-    // Optionally handle other errors
+    if (res?.status === 400) {
+      setDownvotedIds((s) => new Set(s).add(id));
+      return;
+    }
   };
 
   return (
@@ -110,13 +117,12 @@ export default function Home() {
       {newsList.map((news) => (
         <div
           key={news.id}
-          className="h-full max-w-sm w-full justify-self-center rounded-lg overflow-hidden cursor-pointer"
+          className="h-full max-w-sm w-full rounded-lg overflow-hidden cursor-pointer"
           onClick={() => openDetails(news.id)}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => e.key === "Enter" && openDetails(news.id)}
         >
-          {" "}
           <NewsCard
             title={news.title}
             publisher={news.publisher}
@@ -129,6 +135,8 @@ export default function Home() {
             onUpvote={() => onUpvote(news.id)}
             onDownvote={() => onDownvote(news.id)}
             onCommentsClick={() => openComments(news.id)}
+            disableUpvote={upvotedIds.has(news.id)}
+            disableDownvote={downvotedIds.has(news.id)}
           />
         </div>
       ))}
