@@ -109,7 +109,7 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
 
 // Handle news deletion
 export const handleDeleteNews = async (
-  id: number,
+  id: string,
   _token: string,
   setNewsList: React.Dispatch<React.SetStateAction<NewsItem[]>>
 ) => {

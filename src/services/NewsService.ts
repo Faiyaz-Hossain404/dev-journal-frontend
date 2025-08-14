@@ -1,12 +1,15 @@
 import { apiFetch } from "./api";
 
 export type News = {
-  id: number;
+  id: string;
   title: string;
   publisher: string;
   releaseDate: string;
   imageUrl: string;
   upvotes?: number;
+  downvotes?: number;
+  commentsCount?: number;
+  category?: string[];
 };
 
 export async function fetchNews(): Promise<News[]> {

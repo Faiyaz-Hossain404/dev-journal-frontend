@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   fetchComments,
-  handleDownvoteNewsItem,
   postComment,
+  getUpvoteStatus,
+  getDownvoteStatus,
   upvoteNewsItem,
+  undoUpvoteNewsItem,
+  downvoteNewsItem,
+  undoDownvoteNewsItem,
 } from "../../services/helpers";
 import Input from "../common/Input";
 import Button from "../common/Button";
@@ -25,76 +29,77 @@ export default function NewsDetails() {
   const [hasUpvoted, setHasUpvoted] = useState(false);
   const [hasDownvoted, setHasDownvoted] = useState(false);
 
-  //Fetching news details and comments from backend
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         setIsLoading(true);
 
-        const newsRes = await fetch(`http://localhost:3000/api/news/${id}`);
+        // ✅ Use apiFetch for the news detail request
+        //    auth:false because this endpoint is public (avoids sending token / logout side-effects on 401)
+        const newsRes = await apiFetch(`/api/news/${id}`, { auth: false });
         if (!newsRes.ok) throw new Error("Failed to fetch news");
-        const newsData = await newsRes.json();
+        const newsData: NewsItem = await newsRes.json();
         setNews(newsData);
 
+        // keep using your existing helpers for comments/status (you can refactor them to apiFetch later)
         const commentsData = await fetchComments(id!);
         setComments(commentsData);
+
+        const token = localStorage.getItem("token");
+        if (token) {
+          const [u, d] = await Promise.all([
+            getUpvoteStatus(id!),
+            getDownvoteStatus(id!),
+          ]);
+          setHasUpvoted(!!u.hasUpvoted);
+          setHasDownvoted(!!d.hasDownvoted);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error occurred");
       } finally {
         setIsLoading(false);
       }
-    };
-
-    if (id) fetchData();
+    })();
   }, [id]);
 
-  //Fetching upvote stat
-  useEffect(() => {
-    const checkUserUpvoted = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token || !id) return;
+  const setCounts = (upvotes: number, downvotes: number) => {
+    setNews((prev) => (prev ? { ...prev, upvotes, downvotes } : prev));
+  };
 
-        const res = await apiFetch(`/api/news/upvotes/${id}/upvotes`, {
-          method: "GET",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setHasUpvoted(!!data.hasUpvoted);
-        }
-      } catch {}
-    };
-    checkUserUpvoted();
-  }, [id]);
+  const handleUpvote = async () => {
+    if (!id) return;
+    if (hasUpvoted) {
+      const r = await undoUpvoteNewsItem(id);
+      setCounts(r.upvotes, r.downvotes);
+      setHasUpvoted(false);
+    } else {
+      const r = await upvoteNewsItem(id);
+      setCounts(r.upvotes, r.downvotes);
+      setHasUpvoted(true);
+      setHasDownvoted(false);
+    }
+  };
 
-  //Fetching downvote stat
-  useEffect(() => {
-    const checkUserDownvoted = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token || !id) return;
-
-        const res = await apiFetch(`/api/news/downvotes/${id}/downvotes`, {
-          method: "GET",
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setHasDownvoted(!!data.hasDownvoted);
-        }
-      } catch {}
-    };
-    checkUserDownvoted();
-  }, [id]);
+  const handleDownvote = async () => {
+    if (!id) return;
+    if (hasDownvoted) {
+      const r = await undoDownvoteNewsItem(id);
+      setCounts(r.upvotes, r.downvotes);
+      setHasDownvoted(false);
+    } else {
+      const r = await downvoteNewsItem(id);
+      setCounts(r.upvotes, r.downvotes);
+      setHasDownvoted(true);
+      setHasUpvoted(false);
+    }
+  };
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     try {
       const token = localStorage.getItem("token") || undefined;
       const newEntry = await postComment(id!, newComment, token);
-
       setComments((prev) => [newEntry, ...prev]);
       setNewComment("");
     } catch (err) {
@@ -102,39 +107,14 @@ export default function NewsDetails() {
     }
   };
 
-  const handleUpvote = async () => {
-    try {
-      const res = await upvoteNewsItem(id!); // { ok, status, data }
-      if (res.ok) {
-        const serverCount = res.data?.upvotes;
-        setNews((prev) =>
-          prev ? { ...prev, upvotes: serverCount ?? prev.upvotes + 1 } : prev
-        );
-        setHasUpvoted(true);
-        return;
-      }
-      if (res.status === 400) {
-        setHasUpvoted(true);
-        return;
-      }
-      setError(res.data?.error || "Failed to upvote");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to upvote");
-    }
-  };
-
-  const handleDownvote = () => {
-    if (!id) return;
-    handleDownvoteNewsItem(id, setNews, setHasDownvoted, setError); // POST /api/news/downvotes/:id/downvote
-  };
-
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
   if (!news) return <div className="text-white p-6">News not found</div>;
 
   return (
+    /* ...your existing JSX stays the same... */
+    // (no changes needed below this point)
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
       <h1 className="text-2xl font-bold text-[#A8B3CF] mb-4">{news.title}</h1>
-
       {news.imageUrl && (
         <img
           src={news.imageUrl}
@@ -142,21 +122,12 @@ export default function NewsDetails() {
           className="w-full max-w-3xl rounded mb-4 object-cover"
         />
       )}
-
       <p className="text-gray-300 mb-4">{news.description}</p>
-
       <div className="text-sm text-gray-400 mb-6">
         <span>
-          {/* {news.publisher} • {news.category} • {news.releaseDate} */}
-          {news.publisher} •{" "}
-          {Array.isArray(news.category)
-            ? news.category.join(", ")
-            : news.category}{" "}
-          • {news.releaseDate}
+          {news.publisher} • {news.category} • {news.releaseDate}
         </span>
       </div>
-
-      {/* Actions */}
       <div className="flex items-center gap-4 mb-8">
         <Button
           onClick={handleUpvote}
@@ -165,12 +136,10 @@ export default function NewsDetails() {
               ? "bg-green-600 text-white"
               : "bg-white text-black hover:bg-gray-100"
           }`}
-          disabled={hasUpvoted}
         >
           <img src={upIcon} alt="" className="w-4 h-4" />
-          <span className="text-sm">Upvote ({news.upvotes})</span>
+          <span className="text-sm">Upvote ({news.upvotes || 0})</span>
         </Button>
-
         <Button
           onClick={handleDownvote}
           className={`flex items-center gap-2 px-3 py-1 rounded ${
@@ -178,17 +147,14 @@ export default function NewsDetails() {
               ? "bg-red-600 text-white"
               : "bg-white text-black hover:bg-gray-100"
           }`}
-          disabled={hasDownvoted}
         >
           <img src={downIcon} alt="" className="w-4 h-4" />
           <span className="text-sm">Downvote ({news.downvotes || 0})</span>
         </Button>
-
         <div className="flex items-center gap-2 ml-auto text-gray-300">
           <img src={commentIcon} alt="" className="w-4 h-4" />
           <span className="text-sm">Comments: {comments.length}</span>
         </div>
-
         <a
           href={news.link}
           target="_blank"
@@ -198,9 +164,7 @@ export default function NewsDetails() {
           Visit Source
         </a>
       </div>
-
-      {/* Comments */}
-      <div className="max-w-xl space-y-4">
+      <div id="comments" className="max-w-xl space-y-4">
         <form onSubmit={handleCommentSubmit}>
           <Input
             name="comment"
@@ -217,7 +181,6 @@ export default function NewsDetails() {
             Post Comment
           </Button>
         </form>
-
         <div className="mt-6 space-y-4">
           {comments.length === 0 ? (
             <p className="text-gray-400 text-sm">No comments yet!</p>
@@ -227,11 +190,11 @@ export default function NewsDetails() {
                 key={c.id}
                 className="bg-zinc-900 border border-zinc-700 p-3 rounded"
               >
-                <p className="text-sm text-white">{c.content}</p>
                 <div className="text-xs text-gray-500 mt-1">
                   {c.user?.name || "Anonymous"} •{" "}
                   {new Date(c.createdAt).toLocaleString()}
                 </div>
+                <p className="text-sm text-white mt-2">{c.content}</p>
               </div>
             ))
           )}
