@@ -271,7 +271,7 @@ export const undoDownvoteNewsItem = async (id: string) => {
   }>;
 };
 
-export const deleteComment = async (newsId: string, commentId: string) => {
+export const deleteComment = async (newsId: string, commentId: number) => {
   const res = await apiFetch(`/api/news/${newsId}/comments/${commentId}`, {
     method: "DELETE",
   });

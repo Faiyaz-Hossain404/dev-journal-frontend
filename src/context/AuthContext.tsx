@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiFetch } from "../services/api";
 
-type User = { id: string; name: string; email: string } | null;
+type User = { id: string; name: string; email?: string } | null;
 
 type AuthContextType = {
   user: User;
@@ -22,7 +22,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await apiFetch("/api/auth/me", { auth: true });
         const data = await res.json();
-        setUser(data.user);
+        setUser({
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+        });
       } catch {
         setUser(null);
       }

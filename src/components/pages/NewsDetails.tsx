@@ -23,24 +23,30 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function NewsDetails() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth(); // ✅ get logged in user
+
   const [news, setNews] = useState<NewsItem | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
   const [hasUpvoted, setHasUpvoted] = useState(false);
   const [hasDownvoted, setHasDownvoted] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const { user } = useAuth();
 
+  // Helper to safely set counts
+  const setCounts = (upvotes: number, downvotes: number) => {
+    setNews((prev) => (prev ? { ...prev, upvotes, downvotes } : prev));
+  };
+
+  // Load details
   useEffect(() => {
     if (!id) return;
+
     (async () => {
       try {
         setIsLoading(true);
-        setError("");
 
-        // Use apiFetch for public news detail request (no auth header needed)
         const newsRes = await apiFetch(`/api/news/${id}`, { auth: false });
         if (!newsRes.ok) throw new Error("Failed to fetch news");
         const newsData: NewsItem = await newsRes.json();
@@ -49,18 +55,13 @@ export default function NewsDetails() {
         const commentsData = await fetchComments(id);
         setComments(commentsData);
 
-        // If logged in, check existing vote status
-        const token = localStorage.getItem("token");
-        if (token) {
+        if (localStorage.getItem("token")) {
           const [u, d] = await Promise.all([
             getUpvoteStatus(id),
             getDownvoteStatus(id),
           ]);
           setHasUpvoted(!!u.hasUpvoted);
           setHasDownvoted(!!d.hasDownvoted);
-        } else {
-          setHasUpvoted(false);
-          setHasDownvoted(false);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error occurred");
@@ -70,19 +71,20 @@ export default function NewsDetails() {
     })();
   }, [id]);
 
-  const setCounts = (upvotes: number, downvotes: number) => {
-    setNews((prev) => (prev ? { ...prev, upvotes, downvotes } : prev));
-  };
-
+  // Votes
   const handleUpvote = async () => {
     if (!id) return;
     try {
-      const r = hasUpvoted
-        ? await undoUpvoteNewsItem(id)
-        : await upvoteNewsItem(id);
-      setCounts(r.upvotes, r.downvotes);
-      setHasUpvoted(!hasUpvoted);
-      if (!hasUpvoted) setHasDownvoted(false);
+      if (hasUpvoted) {
+        const r = await undoUpvoteNewsItem(id);
+        setCounts(r.upvotes, r.downvotes);
+        setHasUpvoted(false);
+      } else {
+        const r = await upvoteNewsItem(id);
+        setCounts(r.upvotes, r.downvotes);
+        setHasUpvoted(true);
+        setHasDownvoted(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to upvote");
     }
@@ -91,26 +93,29 @@ export default function NewsDetails() {
   const handleDownvote = async () => {
     if (!id) return;
     try {
-      const r = hasDownvoted
-        ? await undoDownvoteNewsItem(id)
-        : await downvoteNewsItem(id);
-      setCounts(r.upvotes, r.downvotes);
-      setHasDownvoted(!hasDownvoted);
-      if (!hasDownvoted) setHasUpvoted(false);
+      if (hasDownvoted) {
+        const r = await undoDownvoteNewsItem(id);
+        setCounts(r.upvotes, r.downvotes);
+        setHasDownvoted(false);
+      } else {
+        const r = await downvoteNewsItem(id);
+        setCounts(r.upvotes, r.downvotes);
+        setHasDownvoted(true);
+        setHasUpvoted(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to downvote");
     }
   };
 
+  // Comments
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      const content = newComment.trim();
-      if (!content) return;
 
+    try {
       const token = localStorage.getItem("token") || undefined;
-      const newEntry = await postComment(id!, content, token);
+      const newEntry = await postComment(id!, newComment, token);
       setComments((prev) => [newEntry, ...prev]);
       setNewComment("");
     } catch (err) {
@@ -118,24 +123,19 @@ export default function NewsDetails() {
     }
   };
 
-  const onDeleteComment = async (cid: string) => {
-    if (!id) return;
+  const handleDeleteComment = async (cid: number) => {
     try {
-      if (!window.confirm("Delete this comment?")) return;
-      setDeletingId(cid);
-      await deleteComment(id, cid);
-      setComments((prev) => prev.filter((c) => String(c.id) !== String(cid)));
+      await deleteComment(id!, cid); // cid is number
+      setComments((prev) => prev.filter((c) => c.id !== cid));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to delete");
-    } finally {
-      setDeletingId(null);
+      setError(e instanceof Error ? e.message : "Failed to delete comment");
     }
   };
 
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
   if (!news) return <div className="text-white p-6">News not found</div>;
 
-  const releaseDateText =
+  const safeReleaseDate =
     typeof news.releaseDate === "string"
       ? news.releaseDate
       : new Date(news.releaseDate as any).toLocaleDateString();
@@ -156,16 +156,11 @@ export default function NewsDetails() {
 
       <div className="text-sm text-gray-400 mb-6">
         <span>
-          {news.publisher} • {news.category} • {releaseDateText}
+          {news.publisher} • {news.category} • {safeReleaseDate}
         </span>
       </div>
 
-      {error && (
-        <div className="mb-4 rounded border border-red-600 bg-red-900/30 text-red-300 px-3 py-2 text-sm">
-          {error}
-        </div>
-      )}
-
+      {/* Vote actions */}
       <div className="flex items-center gap-4 mb-8">
         <Button
           onClick={handleUpvote}
@@ -196,18 +191,17 @@ export default function NewsDetails() {
           <span className="text-sm">Comments: {comments.length}</span>
         </div>
 
-        {news.link && (
-          <a
-            href={news.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 underline"
-          >
-            Visit Source
-          </a>
-        )}
+        <a
+          href={news.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 underline"
+        >
+          Visit Source
+        </a>
       </div>
 
+      {/* Comments */}
       <div id="comments" className="max-w-xl space-y-4">
         <form onSubmit={handleCommentSubmit}>
           <Input
@@ -217,6 +211,7 @@ export default function NewsDetails() {
             placeholder="Add a comment..."
             className="w-full p-2 rounded-md bg-zinc-900 border border-zinc-700 text-white"
           />
+          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
           <Button
             type="submit"
             className="mt-2 px-4 py-2 bg-white text-black rounded hover:bg-gray-100"
@@ -229,40 +224,28 @@ export default function NewsDetails() {
           {comments.length === 0 ? (
             <p className="text-gray-400 text-sm">No comments yet!</p>
           ) : (
-            comments.map((c) => {
-              const isOwner =
-                String(c.user?.id ?? "") === String(user?.id ?? "");
-
-              return (
-                <div
-                  key={c.id}
-                  className="bg-zinc-900 border border-zinc-700 p-3 rounded"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-xs text-gray-500 truncate">
-                        {c.user?.name || "Anonymous"} •{" "}
-                        {new Date(c.createdAt).toLocaleString()}
-                      </div>
-                      <p className="text-sm text-white mt-2 whitespace-pre-wrap break-words">
-                        {c.content}
-                      </p>
-                    </div>
-
-                    {isOwner && (
-                      <Button
-                        onClick={() => onDeleteComment(String(c.id))}
-                        className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 disabled:opacity-60"
-                        disabled={deletingId === String(c.id)}
-                        title="Delete comment"
-                      >
-                        {deletingId === String(c.id) ? "Deleting..." : "Delete"}
-                      </Button>
-                    )}
-                  </div>
+            comments.map((c) => (
+              <div
+                key={c.id}
+                className="bg-zinc-900 border border-zinc-700 p-3 rounded"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm text-white">{c.content}</p>
+                  {c.user?.id === user?.id && (
+                    <Button
+                      onClick={() => handleDeleteComment(c.id)}
+                      className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </div>
-              );
-            })
+                <div className="text-xs text-gray-500 mt-1">
+                  {c.user?.name || "Anonymous"} •{" "}
+                  {new Date(c.createdAt).toLocaleString()}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
