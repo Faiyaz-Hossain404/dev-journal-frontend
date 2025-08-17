@@ -125,7 +125,10 @@ export default function NewsDetails() {
       <p className="text-gray-300 mb-4">{news.description}</p>
       <div className="text-sm text-gray-400 mb-6">
         <span>
-          {news.publisher} • {news.category} • {news.releaseDate}
+          {news.publisher} • {news.category} •{" "}
+          {typeof news.releaseDate === "string"
+            ? news.releaseDate
+            : new Date(news.releaseDate as any).toLocaleDateString()}
         </span>
       </div>
       <div className="flex items-center gap-4 mb-8">
