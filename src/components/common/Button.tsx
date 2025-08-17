@@ -1,9 +1,10 @@
 type ButtonProps = {
   children: React.ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   className?: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
+  title?: string;
 };
 
 export default function Button({
@@ -12,6 +13,7 @@ export default function Button({
   className,
   type = "button",
   disabled,
+  title,
 }: ButtonProps) {
   return (
     <button
@@ -19,6 +21,7 @@ export default function Button({
       className={className}
       disabled={disabled}
       type={type}
+      title={title}
     >
       {children}
     </button>

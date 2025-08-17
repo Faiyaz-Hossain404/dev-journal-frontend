@@ -9,6 +9,7 @@ import {
   undoUpvoteNewsItem,
   downvoteNewsItem,
   undoDownvoteNewsItem,
+  deleteComment,
 } from "../../services/helpers";
 import Input from "../common/Input";
 import Button from "../common/Button";
@@ -18,6 +19,7 @@ import { apiFetch } from "../../services/api";
 import upIcon from "../../assets/up.png";
 import downIcon from "../../assets/down.png";
 import commentIcon from "../../assets/comment.png";
+import { useAuth } from "../../context/AuthContext";
 
 export default function NewsDetails() {
   const { id } = useParams<{ id: string }>();
@@ -28,31 +30,37 @@ export default function NewsDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasUpvoted, setHasUpvoted] = useState(false);
   const [hasDownvoted, setHasDownvoted] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!id) return;
     (async () => {
       try {
         setIsLoading(true);
+        setError("");
 
-        // ✅ Use apiFetch for the news detail request
-        //    auth:false because this endpoint is public (avoids sending token / logout side-effects on 401)
+        // Use apiFetch for public news detail request (no auth header needed)
         const newsRes = await apiFetch(`/api/news/${id}`, { auth: false });
         if (!newsRes.ok) throw new Error("Failed to fetch news");
         const newsData: NewsItem = await newsRes.json();
         setNews(newsData);
 
-        // keep using your existing helpers for comments/status (you can refactor them to apiFetch later)
-        const commentsData = await fetchComments(id!);
+        const commentsData = await fetchComments(id);
         setComments(commentsData);
 
+        // If logged in, check existing vote status
         const token = localStorage.getItem("token");
         if (token) {
           const [u, d] = await Promise.all([
-            getUpvoteStatus(id!),
-            getDownvoteStatus(id!),
+            getUpvoteStatus(id),
+            getDownvoteStatus(id),
           ]);
           setHasUpvoted(!!u.hasUpvoted);
           setHasDownvoted(!!d.hasDownvoted);
+        } else {
+          setHasUpvoted(false);
+          setHasDownvoted(false);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error occurred");
@@ -68,29 +76,29 @@ export default function NewsDetails() {
 
   const handleUpvote = async () => {
     if (!id) return;
-    if (hasUpvoted) {
-      const r = await undoUpvoteNewsItem(id);
+    try {
+      const r = hasUpvoted
+        ? await undoUpvoteNewsItem(id)
+        : await upvoteNewsItem(id);
       setCounts(r.upvotes, r.downvotes);
-      setHasUpvoted(false);
-    } else {
-      const r = await upvoteNewsItem(id);
-      setCounts(r.upvotes, r.downvotes);
-      setHasUpvoted(true);
-      setHasDownvoted(false);
+      setHasUpvoted(!hasUpvoted);
+      if (!hasUpvoted) setHasDownvoted(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to upvote");
     }
   };
 
   const handleDownvote = async () => {
     if (!id) return;
-    if (hasDownvoted) {
-      const r = await undoDownvoteNewsItem(id);
+    try {
+      const r = hasDownvoted
+        ? await undoDownvoteNewsItem(id)
+        : await downvoteNewsItem(id);
       setCounts(r.upvotes, r.downvotes);
-      setHasDownvoted(false);
-    } else {
-      const r = await downvoteNewsItem(id);
-      setCounts(r.upvotes, r.downvotes);
-      setHasDownvoted(true);
-      setHasUpvoted(false);
+      setHasDownvoted(!hasDownvoted);
+      if (!hasDownvoted) setHasUpvoted(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to downvote");
     }
   };
 
@@ -98,8 +106,11 @@ export default function NewsDetails() {
     e.preventDefault();
     setError("");
     try {
+      const content = newComment.trim();
+      if (!content) return;
+
       const token = localStorage.getItem("token") || undefined;
-      const newEntry = await postComment(id!, newComment, token);
+      const newEntry = await postComment(id!, content, token);
       setComments((prev) => [newEntry, ...prev]);
       setNewComment("");
     } catch (err) {
@@ -107,14 +118,32 @@ export default function NewsDetails() {
     }
   };
 
+  const onDeleteComment = async (cid: string) => {
+    if (!id) return;
+    try {
+      if (!window.confirm("Delete this comment?")) return;
+      setDeletingId(cid);
+      await deleteComment(id, cid);
+      setComments((prev) => prev.filter((c) => String(c.id) !== String(cid)));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (isLoading) return <div className="text-white p-6">Loading...</div>;
   if (!news) return <div className="text-white p-6">News not found</div>;
 
+  const releaseDateText =
+    typeof news.releaseDate === "string"
+      ? news.releaseDate
+      : new Date(news.releaseDate as any).toLocaleDateString();
+
   return (
-    /* ...your existing JSX stays the same... */
-    // (no changes needed below this point)
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
       <h1 className="text-2xl font-bold text-[#A8B3CF] mb-4">{news.title}</h1>
+
       {news.imageUrl && (
         <img
           src={news.imageUrl}
@@ -122,15 +151,21 @@ export default function NewsDetails() {
           className="w-full max-w-3xl rounded mb-4 object-cover"
         />
       )}
+
       <p className="text-gray-300 mb-4">{news.description}</p>
+
       <div className="text-sm text-gray-400 mb-6">
         <span>
-          {news.publisher} • {news.category} •{" "}
-          {typeof news.releaseDate === "string"
-            ? news.releaseDate
-            : new Date(news.releaseDate as any).toLocaleDateString()}
+          {news.publisher} • {news.category} • {releaseDateText}
         </span>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded border border-red-600 bg-red-900/30 text-red-300 px-3 py-2 text-sm">
+          {error}
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-8">
         <Button
           onClick={handleUpvote}
@@ -143,6 +178,7 @@ export default function NewsDetails() {
           <img src={upIcon} alt="" className="w-4 h-4" />
           <span className="text-sm">Upvote ({news.upvotes || 0})</span>
         </Button>
+
         <Button
           onClick={handleDownvote}
           className={`flex items-center gap-2 px-3 py-1 rounded ${
@@ -154,19 +190,24 @@ export default function NewsDetails() {
           <img src={downIcon} alt="" className="w-4 h-4" />
           <span className="text-sm">Downvote ({news.downvotes || 0})</span>
         </Button>
+
         <div className="flex items-center gap-2 ml-auto text-gray-300">
           <img src={commentIcon} alt="" className="w-4 h-4" />
           <span className="text-sm">Comments: {comments.length}</span>
         </div>
-        <a
-          href={news.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 underline"
-        >
-          Visit Source
-        </a>
+
+        {news.link && (
+          <a
+            href={news.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 underline"
+          >
+            Visit Source
+          </a>
+        )}
       </div>
+
       <div id="comments" className="max-w-xl space-y-4">
         <form onSubmit={handleCommentSubmit}>
           <Input
@@ -176,7 +217,6 @@ export default function NewsDetails() {
             placeholder="Add a comment..."
             className="w-full p-2 rounded-md bg-zinc-900 border border-zinc-700 text-white"
           />
-          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
           <Button
             type="submit"
             className="mt-2 px-4 py-2 bg-white text-black rounded hover:bg-gray-100"
@@ -184,22 +224,45 @@ export default function NewsDetails() {
             Post Comment
           </Button>
         </form>
+
         <div className="mt-6 space-y-4">
           {comments.length === 0 ? (
             <p className="text-gray-400 text-sm">No comments yet!</p>
           ) : (
-            comments.map((c) => (
-              <div
-                key={c.id}
-                className="bg-zinc-900 border border-zinc-700 p-3 rounded"
-              >
-                <div className="text-xs text-gray-500 mt-1">
-                  {c.user?.name || "Anonymous"} •{" "}
-                  {new Date(c.createdAt).toLocaleString()}
+            comments.map((c) => {
+              const isOwner =
+                String(c.user?.id ?? "") === String(user?.id ?? "");
+
+              return (
+                <div
+                  key={c.id}
+                  className="bg-zinc-900 border border-zinc-700 p-3 rounded"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-500 truncate">
+                        {c.user?.name || "Anonymous"} •{" "}
+                        {new Date(c.createdAt).toLocaleString()}
+                      </div>
+                      <p className="text-sm text-white mt-2 whitespace-pre-wrap break-words">
+                        {c.content}
+                      </p>
+                    </div>
+
+                    {isOwner && (
+                      <Button
+                        onClick={() => onDeleteComment(String(c.id))}
+                        className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 disabled:opacity-60"
+                        disabled={deletingId === String(c.id)}
+                        title="Delete comment"
+                      >
+                        {deletingId === String(c.id) ? "Deleting..." : "Delete"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-white mt-2">{c.content}</p>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

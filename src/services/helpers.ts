@@ -271,6 +271,16 @@ export const undoDownvoteNewsItem = async (id: string) => {
   }>;
 };
 
+export const deleteComment = async (newsId: string, commentId: string) => {
+  const res = await apiFetch(`/api/news/${newsId}/comments/${commentId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok && res.status !== 204) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error || "Failed to delete comment");
+  }
+};
+
 //Auth Service
 //login
 export function useLoginForm() {
