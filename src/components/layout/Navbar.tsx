@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../common/Input";
 import Button from "../common/Button";
 import searchIcon from "../../assets/search.png";
 import { useAuth } from "../../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // import { NavLink } from "react-router-dom";
 
@@ -11,6 +11,30 @@ export default function Navbar() {
   const [search, setSearch] = useState("");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // hydrate search box from URL on mount / route change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q") ?? "";
+    setSearch(q);
+  }, [location.search]);
+
+  // debounce URL updates when typing
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const params = new URLSearchParams(location.search);
+      if (search.trim()) params.set("q", search.trim());
+      else params.delete("q");
+
+      const next = `/${params.toString() ? `?${params.toString()}` : ""}`;
+      if (location.pathname + location.search !== next) {
+        navigate(next, { replace: true });
+      }
+    }, 250);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const handleLogout = () => {
     logout();
@@ -19,13 +43,12 @@ export default function Navbar() {
 
   return (
     <nav className="bg-[#0E1217] text-white flex items-center justify-between p-4 border-b border-gray-200 shadow-sm">
-      {/* Left: Logo */}
+      {/* Left: Logo + nav */}
       <div className="flex items-center gap-6 min-w-max">
         <span className="text-xl font-bold whitespace-nowrap">
           The Dev Journal
         </span>
 
-        {/* ✅ Navigation links to main pages */}
         <Link to="/" className="text-sm text-[#A8B3CF] hover:underline">
           Home
         </Link>
@@ -50,7 +73,7 @@ export default function Navbar() {
         <img
           src={searchIcon}
           alt="Search"
-          className="absolute left-8 top-1/2 transform -translate-y-1/2 h- w-5 opacity-60"
+          className="absolute left-8 top-1/2 -translate-y-1/2 w-5 opacity-60 pointer-events-none"
         />
         <Input
           value={search}

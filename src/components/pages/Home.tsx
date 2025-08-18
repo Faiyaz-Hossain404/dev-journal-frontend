@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { fetchNews } from "../../services/NewsService";
+// import { fetchNews } from "../../services/NewsService";
 import NewsCard from "../news/NewsCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   upvoteNewsItem,
   undoUpvoteNewsItem,
@@ -9,7 +9,9 @@ import {
   undoDownvoteNewsItem,
   getUpvoteStatus,
   getDownvoteStatus,
+  filterNews,
 } from "../../services/helpers";
+import { apiFetch } from "../../services/api";
 // import type { NewsItem } from "../../types/NewsItem";
 
 type News = {
@@ -22,6 +24,8 @@ type News = {
   downvotes?: number;
   commentsCount?: number;
   category?: string[];
+  categories?: { id: string; name: string }[];
+  description?: string;
 };
 
 export default function Home() {
@@ -30,21 +34,37 @@ export default function Home() {
     Record<string, { up: boolean; down: boolean }>
   >({});
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q")?.trim() ?? "";
   const navigate = useNavigate();
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      const data = await fetchNews();
+
+      // server-side search (keeps your getAllNews untouched when q is empty)
+      const res = await apiFetch(
+        `/api/news${q ? `?q=${encodeURIComponent(q)}` : ""}`,
+        { auth: false }
+      );
+      if (!res.ok) {
+        setNewsList([]);
+        setLoading(false);
+        return;
+      }
+      const data: News[] = await res.json();
       if (!alive) return;
-      setNewsList(data as any);
+
+      // client-side guard filter (matches legacy custom categories too)
+      const filtered = q ? filterNews(data as any, q) : data;
+      setNewsList(filtered);
 
       // fetch per-item status (only if logged in)
       const token = localStorage.getItem("token");
-      if (token) {
+      if (token && filtered.length) {
         const pairs = await Promise.all(
-          data.map(async (n: News) => {
+          filtered.map(async (n: News) => {
             const [u, d] = await Promise.all([
               getUpvoteStatus(n.id),
               getDownvoteStatus(n.id),
@@ -58,6 +78,8 @@ export default function Home() {
         const map: Record<string, { up: boolean; down: boolean }> = {};
         pairs.forEach(([id, s]) => (map[id] = s));
         setStatuses(map);
+      } else {
+        setStatuses({});
       }
 
       setLoading(false);
@@ -65,7 +87,7 @@ export default function Home() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [q]); // ✅ re-run when q changes
 
   const setCounts = (id: string, upvotes: number, downvotes: number) => {
     setNewsList((prev) =>
@@ -106,7 +128,7 @@ export default function Home() {
   if (newsList.length === 0) {
     return (
       <div className="min-h-screen bg-[#0E1217] text-white p-6">
-        <p className="text-gray-400">No news yet...</p>
+        <p className="text-gray-400">No news found{q ? ` for "${q}"` : ""}…</p>
       </div>
     );
   }
@@ -120,7 +142,7 @@ export default function Home() {
           onClick={() => navigate(`/news/${n.id}`)}
           className="h-full block"
         >
-          <div className="h-full overflow-hidden rounded-lg">
+          <div className="h-full overflow-hidden rounded-lg cursor-pointer">
             <NewsCard
               title={n.title}
               publisher={n.publisher}

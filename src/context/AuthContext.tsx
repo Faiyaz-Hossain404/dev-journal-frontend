@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const res = await apiFetch("/api/auth/me", { auth: true });
         const data = await res.json();
         setUser({
-          id: data.user.id,
+          id: String(data.user.id),
           name: data.user.name,
           email: data.user.email,
         });

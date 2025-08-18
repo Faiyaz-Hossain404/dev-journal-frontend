@@ -7,6 +7,34 @@ import type { FormType } from "../types/FormType";
 import { initialForm } from "../types/FormType";
 import { apiFetch } from "./api";
 
+//Home
+export const filterNews = (newsList: any[], searchTerm: string) => {
+  const t = searchTerm.trim().toLowerCase();
+  if (!t) return newsList;
+
+  return newsList.filter((item) => {
+    const inTitle = item.title?.toLowerCase().includes(t);
+    const inDesc = item.description?.toLowerCase().includes(t);
+    const inPublisher = item.publisher?.toLowerCase().includes(t);
+
+    // legacy custom categories-as-tags (string[])
+    const inCustomCategories =
+      Array.isArray(item.category) &&
+      item.category.some((c: string) => String(c).toLowerCase().includes(t));
+
+    // dynamic DB categories (array of {id, name})
+    const inDbCategories =
+      Array.isArray(item.categories) &&
+      item.categories.some(
+        (c: any) => c?.name && String(c.name).toLowerCase().includes(t)
+      );
+
+    return (
+      inTitle || inDesc || inPublisher || inCustomCategories || inDbCategories
+    );
+  });
+};
+
 //For AddNews
 export const handleformChange = (
   e: React.ChangeEvent<
@@ -171,15 +199,12 @@ export const postComment = async (
   content: string,
   token?: string
 ): Promise<Comment> => {
-  const headers: Record<string, string> = {
-    "Content-type": "application/json",
-  };
-
   if (token) {
     const res = await apiFetch(`/api/news/${newsId}/comments`, {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content }),
+      auth: true,
     });
     if (!res.ok) {
       throw new Error("Failed to post comment");
@@ -271,7 +296,7 @@ export const undoDownvoteNewsItem = async (id: string) => {
   }>;
 };
 
-export const deleteComment = async (newsId: string, commentId: number) => {
+export const deleteComment = async (newsId: string, commentId: string) => {
   const res = await apiFetch(`/api/news/${newsId}/comments/${commentId}`, {
     method: "DELETE",
   });

@@ -46,9 +46,7 @@ export default function AddNews() {
     const ok = await submitNews(form, setForm, setError);
     if (ok) {
       setSuccess("News posted successfully!");
-      // setTimeout(() => setSuccess(""), 3000);
     }
-    console.log("Form submitted:", form);
   };
 
   return (
@@ -158,28 +156,20 @@ export default function AddNews() {
                 className="text-sm"
                 classNamePrefix="rs"
                 classNames={{
-                  menuList: () => "hide-scrollbar", // ← hide scrollbar with your utility
+                  menuList: () => "hide-scrollbar",
                 }}
               />
-              {/* <Select
-                name="category"
-                multiple
-                value={form.category}
-                onChange={handleChange}
-                options={categoryOptions}
-                placeholder="Select category"
-                className="w-full p-2 rounded-md bg-gray-800 text-[#A8B3CF]"
-              /> */}
-              <div className="mt-w flex items-center gap-2">
+              <div className="mt-2 flex items-center gap-2">
                 <Button
                   type="button"
                   onClick={() => setForm((prev) => ({ ...prev, category: [] }))}
-                  className="p-0 h-auto bg-transparent text-sx text-gray-300 underline hover:underline shadow-none cursor-pointer"
+                  className="p-0 h-auto bg-transparent text-xs text-gray-300 underline hover:underline shadow-none cursor-pointer"
                 >
                   Clear
                 </Button>
               </div>
             </div>
+
             {error && <p className="text-red-400">{error}</p>}
 
             <div className="flex justify-end">

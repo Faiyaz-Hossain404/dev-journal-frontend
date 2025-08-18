@@ -123,7 +123,7 @@ export default function NewsDetails() {
     }
   };
 
-  const handleDeleteComment = async (cid: number) => {
+  const handleDeleteComment = async (cid: string) => {
     try {
       await deleteComment(id!, cid); // cid is number
       setComments((prev) => prev.filter((c) => c.id !== cid));
@@ -141,112 +141,119 @@ export default function NewsDetails() {
       : new Date(news.releaseDate as any).toLocaleDateString();
 
   return (
-    <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
-      <h1 className="text-2xl font-bold text-[#A8B3CF] mb-4">{news.title}</h1>
-
-      {news.imageUrl && (
-        <img
-          src={news.imageUrl}
-          alt={news.title}
-          className="w-full max-w-3xl rounded mb-4 object-cover"
-        />
-      )}
-
-      <p className="text-gray-300 mb-4">{news.description}</p>
-
-      <div className="text-sm text-gray-400 mb-6">
-        <span>
-          {news.publisher} • {news.category} • {safeReleaseDate}
-        </span>
-      </div>
-
-      {/* Vote actions */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button
-          onClick={handleUpvote}
-          className={`flex items-center gap-2 px-3 py-1 rounded ${
-            hasUpvoted
-              ? "bg-green-600 text-white"
-              : "bg-white text-black hover:bg-gray-100"
-          }`}
-        >
-          <img src={upIcon} alt="" className="w-4 h-4" />
-          <span className="text-sm">Upvote ({news.upvotes || 0})</span>
-        </Button>
-
-        <Button
-          onClick={handleDownvote}
-          className={`flex items-center gap-2 px-3 py-1 rounded ${
-            hasDownvoted
-              ? "bg-red-600 text-white"
-              : "bg-white text-black hover:bg-gray-100"
-          }`}
-        >
-          <img src={downIcon} alt="" className="w-4 h-4" />
-          <span className="text-sm">Downvote ({news.downvotes || 0})</span>
-        </Button>
-
-        <div className="flex items-center gap-2 ml-auto text-gray-300">
-          <img src={commentIcon} alt="" className="w-4 h-4" />
-          <span className="text-sm">Comments: {comments.length}</span>
-        </div>
-
-        <a
-          href={news.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 underline"
-        >
-          Visit Source
-        </a>
-      </div>
-
-      {/* Comments */}
-      <div id="comments" className="max-w-xl space-y-4">
-        <form onSubmit={handleCommentSubmit}>
-          <Input
-            name="comment"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="w-full p-2 rounded-md bg-zinc-900 border border-zinc-700 text-white"
-          />
-          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
-          <Button
-            type="submit"
-            className="mt-2 px-4 py-2 bg-white text-black rounded hover:bg-gray-100"
-          >
-            Post Comment
-          </Button>
-        </form>
-
-        <div className="mt-6 space-y-4">
-          {comments.length === 0 ? (
-            <p className="text-gray-400 text-sm">No comments yet!</p>
-          ) : (
-            comments.map((c) => (
-              <div
-                key={c.id}
-                className="bg-zinc-900 border border-zinc-700 p-3 rounded"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm text-white">{c.content}</p>
-                  {c.user?.id === user?.id && (
-                    <Button
-                      onClick={() => handleDeleteComment(c.id)}
-                      className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {c.user?.name || "Anonymous"} •{" "}
-                  {new Date(c.createdAt).toLocaleString()}
-                </div>
-              </div>
-            ))
+    <div className="min-h-screen bg-[#0E1217] flex item-center justify-center px-4 py-6">
+      <div className="w-full max-w-3xl bg-[#0E1217] text-white rounded-2xl shadow-lg p-6">
+        <h1 className="text-2xl font-bold text-[#A8B3CF] mb-4">{news.title}</h1>
+        <div className="border border-zinc-700 rounded-lg p-4 space-y-4">
+          {news.imageUrl && (
+            <img
+              src={news.imageUrl}
+              alt={news.title}
+              className="w-full max-h-72 rounded mb-4 object-cover"
+            />
           )}
+
+          <p className="text-gray-300 mb-4">{news.description}</p>
+
+          <div className="text-sm text-gray-400 mb-6">
+            <span>
+              {news.publisher} • {news.category} • {safeReleaseDate}
+            </span>
+          </div>
+
+          {/* Vote actions */}
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              onClick={handleUpvote}
+              className={`flex items-center gap-2 px-3 py-1 rounded transition cursor-pointer ${
+                hasUpvoted
+                  ? "bg-green-600 text-white"
+                  : "bg-transparent border-green-600 text-gray-300 hover:bg-green-600 hover:text-white"
+              } hover:shadow-lg hover:shadow-green-500/50`}
+            >
+              <img src={upIcon} alt="" className="w-4 h-4" />
+              <span className="text-sm">Upvote ({news.upvotes || 0})</span>
+            </Button>
+
+            <Button
+              onClick={handleDownvote}
+              className={`flex items-center gap-2 px-3 py-1 rounded transition cursor-pointer ${
+                hasDownvoted
+                  ? "bg-red-600 text-white"
+                  : "bg-transparent border-red-600 text-gray-300 hover:bg-red-600 hover:text-white"
+              } hover:shadow-lg hover:shadow-red-500/50`}
+            >
+              <img src={downIcon} alt="" className="w-4 h-4" />
+              <span className="text-sm">Downvote ({news.downvotes || 0})</span>
+            </Button>
+
+            <div className="flex items-center gap-2 ml-auto text-gray-300 cursor-pointer">
+              <img src={commentIcon} alt="" className="w-4 h-4" />
+              <span className="text-sm">Comments: {comments.length}</span>
+            </div>
+
+            <a
+              href={news.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 underline"
+            >
+              Visit Source
+            </a>
+          </div>
+
+          {/* Comments */}
+          <div id="comments" className="max-w-xl space-y-4">
+            <form onSubmit={handleCommentSubmit}>
+              <Input
+                name="comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="w-full p-2 rounded-md bg-zinc-900 border border-zinc-700 text-white"
+              />
+              {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+              <Button
+                type="submit"
+                className="mt-2 px-4 py-2 rounded cursor-pointer transition 
+             bg-cyan-800 border border-cyan-600 text-gray-300 
+             hover:bg-cyan-600 hover:text-white hover:shadow-lg hover:shadow-cyan-500/50"
+              >
+                Post Comment
+              </Button>
+            </form>
+
+            <div className="mt-6 space-y-4">
+              {comments.length === 0 ? (
+                <p className="text-gray-400 text-sm">No comments yet!</p>
+              ) : (
+                comments.map((c) => (
+                  <div
+                    key={c.id}
+                    className="bg-zinc-900 border border-zinc-700 p-3 rounded"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-sm text-white">{c.content}</p>
+                      {c.user &&
+                        user &&
+                        String(c.user.id) === String(user.id) && (
+                          <Button
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 cursor-pointer"
+                          >
+                            Delete
+                          </Button>
+                        )}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {(c.user?.name && c.user.name.trim()) || "Anonymous"} •{" "}
+                      {new Date(c.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
