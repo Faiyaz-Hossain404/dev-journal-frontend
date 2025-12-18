@@ -42,12 +42,6 @@ export default function ManageNews() {
     handleDeleteNews(id, token, setNewsList);
   };
 
-  // const filteredNews = newsList.filter(
-  //   (item) =>
-  //     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     item.category.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
   const filteredNews = useMemo(
     () =>
       newsList.filter(
@@ -69,7 +63,9 @@ export default function ManageNews() {
         <Button
           onClick={() => setActiveTab("mine")}
           className={`px-3 py-1 rounded-2xl ${
-            activeTab === "mine" ? "bg-white text-black" : "text-[#A8B3CF]"
+            activeTab === "mine"
+              ? "bg-white text-black"
+              : "text-[#A8B3CF] cursor-pointer"
           }`}
         >
           My News
@@ -77,7 +73,9 @@ export default function ManageNews() {
         <Button
           onClick={() => setActiveTab("all")}
           className={`px-3 py-1 rounded-2xl ${
-            activeTab === "all" ? "bg-white text-black" : "text-[#A8B3CF]"
+            activeTab === "all"
+              ? "bg-white text-black"
+              : "text-[#A8B3CF] cursor-pointer"
           }`}
         >
           All News
@@ -133,7 +131,7 @@ export default function ManageNews() {
 
               <div className="flex gap-4 mt-2">
                 <Button
-                  className="bg-white text-black px-3 py-1 rounded hover:bg-gray-100"
+                  className="bg-white text-black px-3 py-1 rounded hover:bg-gray-400 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation(); //prevent navigation
                     setEditing(news);
@@ -142,7 +140,7 @@ export default function ManageNews() {
                   Edit
                 </Button>
                 <Button
-                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                  className="bg-pink-600 text-white px-3 py-1 rounded hover:bg-pink-700 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation(); //prevent navigation
                     onDelete(news.id);

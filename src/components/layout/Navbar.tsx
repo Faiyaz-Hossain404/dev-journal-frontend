@@ -92,7 +92,7 @@ export default function Navbar() {
       </div>
 
       {/* Auth */}
-      <div className="ml-auto flex items-center gap-2 min-w-max">
+      <div className=" flex items-center gap-2 min-w-max ml-4">
         {user ? (
           <Button
             onClick={handleLogout}
