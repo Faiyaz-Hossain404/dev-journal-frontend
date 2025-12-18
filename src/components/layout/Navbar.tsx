@@ -50,7 +50,7 @@ export default function Navbar() {
         </span>
       </div>
 
-      <div className="relative px-6 max-w-lg w-full ml-8">
+      <div className="relative px-6 max-w-lg w-full ml-auto">
         <img
           src={searchIcon}
           alt="Search"
