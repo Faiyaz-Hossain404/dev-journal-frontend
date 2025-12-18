@@ -37,7 +37,7 @@ export default function ManageNews() {
     fetchNews();
   }, [activeTab]);
 
-  const onDelete = (id: number) => {
+  const onDelete = (id: string) => {
     const token = localStorage.getItem("token") || "";
     handleDeleteNews(id, token, setNewsList);
   };
@@ -58,7 +58,7 @@ export default function ManageNews() {
     [newsList, searchTerm]
   );
 
-  const openDetails = (id: number) => navigate(`/news/${id}`);
+  const openDetails = (id: string) => navigate(`/news/${id}`);
 
   return (
     <div className="min-h-screen bg-[#0E1217] text-white px-4 py-6">
