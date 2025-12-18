@@ -42,38 +42,19 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-[#0E1217] text-white flex items-center justify-between p-4 border-b border-gray-200 shadow-sm">
-      {/* Left: Logo + nav */}
+    <nav className="bg-[#0E1217] text-white flex items-center p-4 border-b border-gray-200 shadow-sm">
+      {/* Left: Logo */}
       <div className="flex items-center gap-6 min-w-max">
         <span className="text-xl font-bold whitespace-nowrap">
           The Dev Journal
         </span>
-
-        <Link to="/" className="text-sm text-[#A8B3CF] hover:underline">
-          Home
-        </Link>
-
-        {user && (
-          <>
-            <Link to="/add" className="text-sm text-[#A8B3CF] hover:underline">
-              Add News
-            </Link>
-            <Link
-              to="/manage"
-              className="text-sm text-[#A8B3CF] hover:underline"
-            >
-              Manage News
-            </Link>
-          </>
-        )}
       </div>
 
-      {/* Center: Search Bar */}
-      <div className="flex-1 relative px-4 max-w-xl mx-auto">
+      <div className="relative px-6 max-w-lg w-full ml-8">
         <img
           src={searchIcon}
           alt="Search"
-          className="absolute left-8 top-1/2 -translate-y-1/2 w-5 opacity-60 pointer-events-none"
+          className="absolute left-10 top-1/2 -translate-y-1/2 w-5 opacity-60 pointer-events-none"
         />
         <Input
           value={search}
@@ -83,12 +64,39 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right: Auth controls */}
-      <div className="ml-4 flex items-center gap-2 min-w-max">
+      {/* Links */}
+      <div className="flex items-center gap-4 ml-auto">
+        <Link
+          to="/"
+          className="text-sm text-[#A8B3CF] hover:underline cursor-pointer"
+        >
+          Home
+        </Link>
+
+        {user && (
+          <>
+            <Link
+              to="/add"
+              className="text-sm text-[#A8B3CF] hover:underline cursor-pointer"
+            >
+              Add News
+            </Link>
+            <Link
+              to="/manage"
+              className="text-sm text-[#A8B3CF] hover:underline cursor-pointer"
+            >
+              Manage News
+            </Link>
+          </>
+        )}
+      </div>
+
+      {/* Auth */}
+      <div className="ml-auto flex items-center gap-2 min-w-max">
         {user ? (
           <Button
             onClick={handleLogout}
-            className="bg-white text-black px-3 py-1 rounded"
+            className="text-pink-600 hover:underline cursor-pointer"
           >
             Logout
           </Button>
