@@ -67,7 +67,7 @@ export const submitNews = async (
   setError: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await apiFetch("/api/news", {
+    const res = await apiFetch(`/api/news`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -212,7 +212,7 @@ export const postComment = async (
     return await res.json();
   }
 
-  const res = await fetch(`http://localhost:3000/api/news/${newsId}/comments`, {
+  const res = await apiFetch(`/api/news/${newsId}/comments`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content }),
@@ -222,7 +222,7 @@ export const postComment = async (
 };
 
 export const fetchComments = async (newsId: string): Promise<Comment[]> => {
-  const res = await fetch(`http://localhost:3000/api/news/${newsId}/comments`);
+  const res = await apiFetch(`/api/news/${newsId}/comments`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch comments");
@@ -323,7 +323,7 @@ export function useLoginForm() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await apiFetch(`/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -370,7 +370,7 @@ export function useRegisterForm() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/register", {
+      const res = await apiFetch(`/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

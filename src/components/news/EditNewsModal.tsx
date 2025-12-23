@@ -68,7 +68,7 @@ export default function EditNewsModal({ news, onClose, onUpdate }: Props) {
               <img
                 src={form.imageUrl}
                 alt="Preview"
-                className="w-32 mt-2 rounded object-contain rounded-md border border-zinc-700"
+                className="w-32 mt-2 object-contain rounded-md border border-zinc-700"
               />
             )}
           </div>
