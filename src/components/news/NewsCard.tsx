@@ -3,23 +3,7 @@ import Stat from "../common/Stat";
 import upIcon from "../../assets/up.png";
 import downIcon from "../../assets/down.png";
 import commentIcon from "../../assets/comment.png";
-
-type Props = {
-  title: string;
-  publisher: string;
-  releaseDate: string | Date;
-  imageUrl?: string;
-  upvotes?: number;
-  downvotes?: number;
-  commentsCount?: number;
-  category?: string[];
-  onUpvote?: () => void;
-  onDownvote?: () => void;
-  onCommentsClick?: () => void;
-  disableUpvote?: boolean;
-  disableDownvote?: boolean;
-  className?: string;
-};
+import type { Props } from "../../types/NewsCard";
 
 export default function NewsCard({
   title,
@@ -50,13 +34,13 @@ export default function NewsCard({
     <Card
       className={`h-full bg-[#0E1217] border border-zinc-700 hover:border-zinc-500 transition-colors ${className}`}
     >
-      <div className="h-full flex flex-col space-y-3">
+      <div className="flex flex-col h-full space-y-3">
         {/* Header */}
-        <div className="space-y-1 min-h-[5rem]">
-          <h3 className="font-bold text-white text-base leading-snug line-clamp-2 min-h-[2.75rem]">
+        <div className="space-y-1">
+          <h3 className="font-bold text-white text-sm leading-snug line-clamp-2">
             {title}
           </h3>
-          <div className="text-xs text-gray-400 flex items-center justify-between h-5">
+          <div className="text-xs text-gray-400 flex items-center justify-between">
             <span className="truncate">{publisher}</span>
             <span>{releaseText}</span>
           </div>
@@ -67,10 +51,10 @@ export default function NewsCard({
           <img
             src={fallback}
             alt={title}
-            className="rounded w-full h-50 object-cover"
+            className="w-full aspect-video object-cover rounded"
             loading="lazy"
           />
-          {category && category.length > 0 ? (
+          {category?.length ? (
             <div className="absolute bottom-2 left-2 flex gap-2 max-w-[90%] overflow-x-auto hide-scrollbar pr-2">
               {category.map((cat) => (
                 <span
@@ -125,11 +109,7 @@ export default function NewsCard({
           <Stat
             icon={
               <div className="w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 hover:bg-cyan-500 hover:shadow-[0_0_10px_rgba(8,145,178,0.5)]">
-                <img
-                  src={commentIcon}
-                  alt=""
-                  className="w-4 h-4 cursor-pointer"
-                />
+                <img src={commentIcon} alt="" className="w-4 h-4" />
               </div>
             }
             label="Comments"

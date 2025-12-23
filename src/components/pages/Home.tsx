@@ -12,21 +12,8 @@ import {
   filterNews,
 } from "../../services/helpers";
 import { apiFetch } from "../../services/api";
+import type { News } from "../../types/HomeNews";
 // import type { NewsItem } from "../../types/NewsItem";
-
-type News = {
-  id: string;
-  title: string;
-  publisher: string;
-  releaseDate: string;
-  imageUrl: string;
-  upvotes?: number;
-  downvotes?: number;
-  commentsCount?: number;
-  category?: string[];
-  categories?: { id: string; name: string }[];
-  description?: string;
-};
 
 export default function Home() {
   const [newsList, setNewsList] = useState<News[]>([]);
@@ -43,7 +30,6 @@ export default function Home() {
     (async () => {
       setLoading(true);
 
-      // server-side search (keeps your getAllNews untouched when q is empty)
       const res = await apiFetch(
         `/api/news${q ? `?q=${encodeURIComponent(q)}` : ""}`,
         { auth: false }
@@ -56,11 +42,9 @@ export default function Home() {
       const data: News[] = await res.json();
       if (!alive) return;
 
-      // client-side guard filter (matches legacy custom categories too)
       const filtered = q ? filterNews(data as any, q) : data;
       setNewsList(filtered);
 
-      // fetch per-item status (only if logged in)
       const token = localStorage.getItem("token");
       if (token && filtered.length) {
         const pairs = await Promise.all(
@@ -87,7 +71,7 @@ export default function Home() {
     return () => {
       alive = false;
     };
-  }, [q]); // ✅ re-run when q changes
+  }, [q]);
 
   const setCounts = (id: string, upvotes: number, downvotes: number) => {
     setNewsList((prev) =>
@@ -134,15 +118,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E1217] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[360px] gap-6 p-6">
-      {newsList.map((n) => (
-        <div
-          key={n.id}
-          role="button"
-          onClick={() => navigate(`/news/${n.id}`)}
-          className="h-full block"
-        >
-          <div className="h-full overflow-hidden rounded-lg cursor-pointer">
+    <div className="min-h-screen bg-[#0E1217] p-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-[280px]">
+        {newsList.map((n) => (
+          <div
+            key={n.id}
+            role="button"
+            onClick={() => navigate(`/news/${n.id}`)}
+            className="block cursor-pointer"
+          >
             <NewsCard
               title={n.title}
               publisher={n.publisher}
@@ -156,8 +140,8 @@ export default function Home() {
               onCommentsClick={() => navigate(`/news/${n.id}#comments`)}
             />
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
