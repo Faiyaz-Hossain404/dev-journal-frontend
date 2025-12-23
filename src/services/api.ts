@@ -1,16 +1,13 @@
-//Standardizes HTTP request
-
-/**
- * apiFetch auto-attaches Authorization header (if a token exists) by default.
- * - For JSON: pass "Content-Type": "application/json" yourself.
- * - For FormData: DO NOT pass Content-Type (browser sets boundary).
- * - On 401, it clears token and emits a global logout event.
- */
-const BASE_URL = "http://localhost:3000"; //Later use this in the helpers
+// const BASE_URL = "http://localhost:3000";
+const BASE_URL = "import.meta.env.VITE_API_URL";
 
 type Options = RequestInit & { auth?: boolean };
 
 export async function apiFetch(path: string, options: Options = {}) {
+  if (!BASE_URL) {
+    throw new Error("VITE_API_URL is not defined");
+  }
+
   const isAbsolute = /^https?:\/\//i.test(path);
   const url = isAbsolute ? path : `${BASE_URL}${path}`;
 
