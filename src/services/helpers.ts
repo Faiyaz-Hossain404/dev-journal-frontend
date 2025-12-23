@@ -118,6 +118,7 @@ export const handleFileUpload = async <T extends { imageUrl: string }>(
     if (!res.ok) throw new Error(data.error || "Upload failed");
 
     setForm((prev) => ({ ...prev, imageUrl: data.imageUrl }));
+    setError("");
   } catch (err) {
     setError("Image upload failed");
   } finally {
